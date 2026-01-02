@@ -12,7 +12,7 @@
     "core:dev": "pnpm --filter @vuedi/core dev",
     "playground:dev": "pnpm --filter @vuedi/playground dev",
     "typecheck": "pnpm --recursive typecheck",
-    "test": "pnpm --recursive test",
+    "core:test": "pnpm --filter @vuedi/core  test",
     "lint": "pnpm --recursive lint"
   },
   "dependencies": {

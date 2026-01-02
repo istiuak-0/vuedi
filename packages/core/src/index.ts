@@ -1,5 +1,5 @@
 import { ref } from 'vue';
 
-export function test() {
+export function inter() {
   return ref('test');
 }

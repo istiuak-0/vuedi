@@ -43,15 +43,23 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "lint": "eslint ."
   },
   "peerDependencies": {
     "vue": "^3.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@types/node": "^22.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.51.0",
+    "@typescript-eslint/parser": "^8.51.0",
+    "eslint": "^9.39.2",
+    "jiti": "^2.6.1",
     "tsup": "^8.5.1",
     "typescript": "catalog:",
+    "vitest": "^4.0.16",
     "vue": "catalog:"
   },
   "engines": {
