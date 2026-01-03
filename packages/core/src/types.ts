@@ -3,7 +3,6 @@ export type ServiceConstructor<T = unknown> = {
 };
 export type ServiceConfig = {
   in: 'root' | 'component';
-  eger: boolean;
 };
 
 export interface UnMounted {
