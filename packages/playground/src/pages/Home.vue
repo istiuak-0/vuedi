@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { resolve } from '@vuedi/core';
+import { exposeToChildren, resolve } from '@vuedi/core';
 import { BinanceService } from '../services/Binance.service';
 import { AppService } from '../App.service';
 
 const binanceService = resolve(BinanceService);
 
 const appService = resolve(AppService);
+
+exposeToChildren(appService);
+
 </script>
 
 <template>
