@@ -6,14 +6,19 @@ function ImplementsUnmounted(instance: unknown) {
   return typeof (instance as any).onUnmounted === 'function';
 }
 
+type ServiceWithUnmounted<T> = T & {
+  onUnmounted(): void;
+};
+
 export function resolve<T extends ServiceConstructor>(serviceClass: T): InstanceType<T> {
-
-
   let config = (serviceClass as any)[SERVICE_INTERNAL_METADATA] as ServiceConfig;
 
-  /// For component Scoped Services
-  if (config && config.in === 'component') {
+  if (!config) {
+    throw new Error('No Config Metadate Found, Make Sure To Use @Register() in Service Class');
+  }
 
+  /// For component Scoped Services (No nedd To Add This On Global Registry)
+  if (config.in === 'component') {
     const componentInstance = getCurrentInstance();
 
     if (!componentInstance) {
@@ -27,7 +32,7 @@ export function resolve<T extends ServiceConstructor>(serviceClass: T): Instance
 
       if (ImplementsUnmounted(instance)) {
         try {
-          (instance as { onUnmounted(): void }).onUnmounted();
+          (instance as ServiceWithUnmounted<typeof instance>).onUnmounted();
         } catch (error) {
           console.error(`Error in onUnmounted:`, error);
         }
@@ -39,10 +44,9 @@ export function resolve<T extends ServiceConstructor>(serviceClass: T): Instance
     return instance as InstanceType<T>;
   }
 
-
   // For Root scoped Services
   let instance = serviceRegistry.get(serviceClass);
-  
+
   if (instance === null) {
     instance = new serviceClass();
     serviceRegistry.set(serviceClass, instance);
