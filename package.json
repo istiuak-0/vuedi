@@ -1,5 +1,5 @@
 {
-  "name": "vuedi",
+  "name": "@vuedi/root",
   "description": "Monorepo for Vue Dependency Injection (DI) libraries",
   "private": true,
   "workspaces": [

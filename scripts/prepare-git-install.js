@@ -9,14 +9,17 @@ if (isGitRepo) {
   process.exit(0);
 }
 
-// Copy package.json from packages/core to root
+
 const sourcePath = path.join(__dirname, '..', 'packages', 'core', 'package.json');
 const destPath = path.join(__dirname, '..', 'package.json');
 
 try {
-  fs.copyFileSync(sourcePath, destPath);
-  console.log('✅ Copied package.json for git installation');
+  const packageJson = JSON.parse(fs.readFileSync(sourcePath, 'utf8'));
+  packageJson.name = 'vuedi';
+  fs.writeFileSync(destPath, JSON.stringify(packageJson, null, 2));
+  
+  console.log('Copied and renamed package.json to "vuedi" for git installation');
 } catch (error) {
-  console.error('❌ Failed to copy package.json:', error.message);
+  console.error('Failed to prepare package.json:', error.message);
   process.exit(1);
 }
