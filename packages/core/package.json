@@ -45,8 +45,7 @@
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
-    "lint": "eslint .",
-    "prepare": "npm run build"
+    "lint": "eslint ."
   },
   "peerDependencies": {
     "vue": "^3.0.0"
