@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 
 const isGitRepo = fs.existsSync(path.join(__dirname, '..', '.git'));
 
@@ -9,33 +8,17 @@ if (isGitRepo) {
   process.exit(0);
 }
 
+const sourcePath = path.join(__dirname, '..', 'packages', 'core', 'package.json');
+const destPath = path.join(__dirname, '..', 'package.json');
+
 try {
-  execSync('npm run i:all', {
-    stdio: 'inherit',
-    cwd: path.join(__dirname, '..'),
-  });
-
-  execSync('npm run core:build', {
-    stdio: 'inherit',
-    cwd: path.join(__dirname, '..'),
-  });
-
-  const packageJson = JSON.parse(
-    fs.readFileSync(path.join(__dirname, '..', 'packages', 'core', 'package.json'), 'utf8')
-  );
+  const packageJson = JSON.parse(fs.readFileSync(sourcePath, 'utf8'));
   packageJson.name = 'vuedi';
 
-  const distSource = path.join(__dirname, '..', 'packages', 'core', 'dist');
-  const distDest = path.join(__dirname, '..', 'dist');
+  fs.writeFileSync(destPath, JSON.stringify(packageJson, null, 2));
 
-  if (fs.existsSync(distSource)) {
-    fs.cpSync(distSource, distDest, { recursive: true });
-  }
-
-  fs.writeFileSync(path.join(__dirname, '..', 'package.json'), JSON.stringify(packageJson, null, 2));
-
-  console.log('Build complete - vuedi ready for use');
+  console.log('Copied and renamed package.json to "vuedi" for git installation');
 } catch (error) {
-  console.error('Build failed:', error.message);
+  console.error('Failed to prepare package.json:', error.message);
   process.exit(1);
 }
