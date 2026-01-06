@@ -6,7 +6,7 @@ Currently, we actively maintain and provide security updates for the latest vers
 
 | Version | Supported |
 | ------- | --------- |
-| 5.1.x   | Yes       |
+| 1.x     | Yes       |
 
 All previous versions (if any) are not supported.
 

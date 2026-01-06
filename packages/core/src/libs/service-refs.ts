@@ -1,6 +1,7 @@
+import { serviceRefView } from './registry';
 import { computed, isReactive, isRef, toRaw, toRef } from 'vue';
 
-export function serviceToRefs<T extends object>(service: T) {
+function serviceToRefs<T extends object>(service: T) {
   const rawService = toRaw(service);
   const refs: any = {};
 
@@ -21,4 +22,12 @@ export function serviceToRefs<T extends object>(service: T) {
   }
 
   return refs as T;
+}
+
+export function getServiceRef<T extends object>(instance: T): T {
+  const cached = serviceRefView.get(instance);
+  if (cached) return cached;
+  const refs = serviceToRefs(instance);
+  serviceRefView.set(instance, refs);
+  return refs;
 }

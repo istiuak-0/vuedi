@@ -1,5 +1,5 @@
 import { SERVICE_INTERNAL_METADATA, serviceRegistry } from '../libs/registry';
-import { serviceToRefs } from '../libs/service-to-refs';
+import { getServiceRef } from '../libs/service-refs';
 import { type ServiceConfig, type ServiceConstructor } from '../libs/types';
 
 /// this will only be used fro global services
@@ -19,5 +19,5 @@ export function resolve<T extends ServiceConstructor>(serviceClass: T): Instance
     serviceRegistry.set(serviceClass, instance);
   }
 
-  return serviceToRefs(instance as object) as InstanceType<T>;
+  return getServiceRef(instance as object) as InstanceType<T>;
 }
