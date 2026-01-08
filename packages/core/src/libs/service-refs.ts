@@ -19,6 +19,8 @@ function serviceToRefs<T extends InstanceType<ServiceConstructor>>(service: T) {
       });
     } else if (isRef(value) || isReactive(value)) {
       refs[key] = toRef(service, key);
+    }else{
+      refs[key]=value
     }
   }
   return refs;
