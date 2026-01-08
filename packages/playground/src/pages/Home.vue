@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { resolve, serviceToRefs } from '@vuedi/core';
+import { resolve } from '@vuedi/core';
 import { BinanceService } from '../services/Binance.service';
 
-const binanceService = resolve(BinanceService);
-
-const { connected, socket, lastMessage } = serviceToRefs(binanceService);
+const { connected, socket, lastMessage } = resolve(BinanceService);
 </script>
 
 <template>

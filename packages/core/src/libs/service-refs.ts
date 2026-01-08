@@ -10,7 +10,7 @@ function serviceToRefs<T extends InstanceType<ServiceConstructor>>(service: T) {
   for (const key in service) {
     const value = rawService[key];
 
-    if ((value as any).effect) {
+    if (value != null && typeof value === 'object' && 'effect' in value) {
       refs[key] = computed({
         get: () => service[key],
         set: newValue => {
@@ -19,8 +19,10 @@ function serviceToRefs<T extends InstanceType<ServiceConstructor>>(service: T) {
       });
     } else if (isRef(value) || isReactive(value)) {
       refs[key] = toRef(service, key);
-    }else{
-      refs[key]=value
+    } else if (typeof value === 'function') {
+      refs[key] = value.bind(service);
+    } else {
+      refs[key] = value;
     }
   }
   return refs;
@@ -33,4 +35,3 @@ export function getServiceRef<T extends InstanceType<ServiceConstructor>>(instan
   serviceRefView.set(instance, refs);
   return refs;
 }
-

@@ -7,5 +7,9 @@ export const router = createRouter({
       path: '',
       component: () => import('./pages/Home.vue'),
     },
+    {
+      path: '/count',
+      component: () => import('./pages/Count.vue'),
+    },
   ],
 });

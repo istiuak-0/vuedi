@@ -32,7 +32,7 @@ function serviceToRefs(service) {
   const refs = {};
   for (const key in service) {
     const value = rawService[key];
-    if (value.effect) {
+    if (value != null && typeof value === "object" && "effect" in value) {
       refs[key] = computed({
         get: () => service[key],
         set: (newValue) => {
@@ -41,6 +41,8 @@ function serviceToRefs(service) {
       });
     } else if (isRef(value) || isReactive(value)) {
       refs[key] = toRef(service, key);
+    } else if (typeof value === "function") {
+      refs[key] = value.bind(service);
     } else {
       refs[key] = value;
     }
@@ -100,14 +102,29 @@ function exposeToChildren(classOrInstance) {
 // src/functions/resolve.ts
 function resolve(serviceClass) {
   const serviceToken = getServiceToken(serviceClass);
-  let instance;
-  if (serviceRegistry.has(serviceToken)) {
-    instance = serviceRegistry.get(serviceToken);
-  } else {
-    instance = new serviceClass();
-    serviceRegistry.set(serviceToken, instance);
+  if (!serviceRegistry.has(serviceToken)) {
+    serviceRegistry.set(serviceToken, new serviceClass());
   }
-  return getServiceRef(instance);
+  let instance = serviceRegistry.get(serviceToken);
+  const obj = {};
+  for (const key in instance) {
+    Object.defineProperty(obj, key, {
+      get: () => instance[key],
+      enumerable: true
+    });
+  }
+  let proto = instance;
+  while ((proto = Object.getPrototypeOf(proto)) && proto !== Object.prototype) {
+    for (const name of Object.getOwnPropertyNames(proto)) {
+      if (name !== "constructor" && !(name in obj)) {
+        const value = proto[name];
+        if (typeof value === "function") {
+          obj[name] = value.bind(instance);
+        }
+      }
+    }
+  }
+  return obj;
 }
 
 // src/functions/resolve-context.ts
