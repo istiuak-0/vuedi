@@ -1,12 +1,13 @@
 import { getCurrentInstance, onScopeDispose } from 'vue';
 import { ImplementsDispose, type ServiceConstructor, type ServiceWithDispose } from '../libs/types';
 import { serviceRefView } from '../libs/registry';
-import { getServiceRef } from '../libs/service-refs';
 
 export function resolveInstance<T extends ServiceConstructor>(serviceClass: T): InstanceType<T> {
   let instance = new serviceClass();
   const componentInstance = getCurrentInstance();
 
+
+/// here if i want i can tap into other hooks
   if (componentInstance) {
     onScopeDispose(() => {
       if (ImplementsDispose(instance)) {
@@ -22,6 +23,5 @@ export function resolveInstance<T extends ServiceConstructor>(serviceClass: T): 
       }
     });
   }
-
-  return getServiceRef(instance) as InstanceType<T>;
+  return instance as InstanceType<T>;
 }
