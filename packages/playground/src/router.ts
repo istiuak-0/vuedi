@@ -15,5 +15,9 @@ export const router = createRouter({
       path: '/getter',
       component: () => import('./pages/Getter.vue'),
     },
+    {
+      path: '/getter-test',
+      component: () => import('./pages/getter-test.vue'),
+    },
   ],
 });
