@@ -1,61 +1,102 @@
 import { ref, watch } from 'vue';
 
 export class Getter {
+  // Static reactive state
   static demoData = ref(0);
 
+  // Instance reactive state
   private data = ref(0);
+
+  // Static method (bound to class)
   static getAll() {
-    console.log('the static method runned', this.demoData.value);
+    console.log('[Static] demoData:', this.demoData.value);
   }
 
-  unwatch = watch(Getter.demoData, newvalue => {
-    console.log(newvalue);
-  });
-
+  // Instance methods (bound to instance)
   plus() {
-    console.log('before:', this.data.value);
+    console.log('[Instance] before:', this.data.value);
     this.data.value++;
-    console.log('after:', this.data.value);
+    console.log('[Instance] after:', this.data.value);
   }
 
   minus() {
+    console.log('[Instance] before:', this.data.value);
     this.data.value--;
+    console.log('[Instance] after:', this.data.value);
   }
+
+  // Getter for private data (optional but useful for testing)
+  get instanceData() {
+    return this.data;
+  }
+
+  set isntaceUpdateDate(data: number) {
+    this.data.value = data;
+  }
+
+  unwatchStatic = watch(Getter.demoData, newVal => {
+    console.log('[Watcher] Static demoData changed:', newVal);
+  });
 }
 
+///data is the class
 export function resolve(data: any) {
-  new data();
-  const instance: any = {};
+  const instance = new data();
+  const getterObj: any = {};
+  const allPropertyKeys = new Set<string>();
+
+  /* --- --- Logics For Handling Static Properties/Methods --- ---   */
 
   /// it also includes objects internals that is not defined by user
-  const allStatics = Object.getOwnPropertyNames(data);
+  const staticKeys = Object.getOwnPropertyNames(data);
 
-  /// filtering out the the statics that are not defined in service class
-  const staticsDefinedInClass = allStatics.filter(k => !['length', 'name', 'prototype'].includes(k));
+  /// filtering out the the static's that are not defined in service class
+  const ownStatics = staticKeys.filter(key => !['length', 'name', 'prototype'].includes(key));
 
-  staticsDefinedInClass.forEach(item => {
+  ownStatics.forEach(item => {
     const staticItem = data[item];
 
     if (typeof staticItem === 'function') {
-      instance[item] = staticItem.bind(data);
+      getterObj[item] = staticItem.bind(data);
     } else {
-      instance[item] = staticItem;
-      console.log('from resolve', staticItem);
+      getterObj[item] = staticItem;
     }
   });
 
-  console.log('All static values', instance);
+  /*  --- --- Logics For Handling Instance Methods & Getter/Setter --- ---  */
+  const proto = Object.getPrototypeOf(instance);
 
-  return instance;
-  // const instance = new data();
-  // const prototype = Object.getPrototypeOf(instance);
-  // const prototypeKeys = Object.getOwnPropertyNames(prototype);
+  /// It Contains All Keys Including Constructor
+  const protoKeys = Object.getOwnPropertyNames(proto);
 
-  // console.log('instance', instance);
-  // console.log('prototype', prototype);
-  // console.log('prototype keys', prototypeKeys);
+  const methodKeys = protoKeys.filter(key => key !== 'constructor');
 
-  // console.log(prototype['constructor']);
+  methodKeys.forEach(item => {
 
-  // console.log(instance[prototypeKeys[1]]);
+    const descriptor = Object.getOwnPropertyDescriptor(proto, item)!;
+    if (descriptor.get || descriptor.set) {
+
+      const newDesc: PropertyDescriptor = {
+        enumerable: true,
+        configurable: true,
+      };
+
+      if (descriptor.get) {
+        newDesc.get = () => descriptor.get!.call(instance);
+      }
+
+      if (descriptor.set) {
+        newDesc.set = (value: any) => descriptor.set!.call(instance, value);
+      }
+
+      Object.defineProperty(getterObj, item, newDesc);
+      
+    } else if (typeof descriptor.value === 'function') {
+      getterObj[item] = descriptor.value.bind(instance);
+    } else {
+      getterObj[item] = descriptor.value;
+    }
+  });
+
+  return getterObj;
 }
