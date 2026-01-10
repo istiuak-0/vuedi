@@ -1,31 +1,37 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { resolve } from '../lib/Getter';
 
- 
- 
+class Getter {
+  data = ref(0);
 
-class Getter{
+  plus() {
+    this.data.value++;
+  }
 
-
-  data=ref(0)
-
-
-
-  plus(){
-    this.data.value++
+  minus() {
+    this.data.value++;
   }
 
 
-  minus(){
-    this.data.value++
-  }
+unwatch=watch(this.data,(newValue)=>{
+  console.log(newValue);
+  
+})
+
+
+
 }
 
-resolve(Getter)
+const { data,plus } = resolve(Getter);
 
+console.log(data);
 
- </script>
+</script>
 <template>
 
+
+  <p>{{data}}</p>
+
+  <button @click="data++">click</button>
 </template>
