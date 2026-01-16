@@ -3,14 +3,12 @@ import { resolve } from '@vuedi/core';
 
 import { CountService } from '../services/Count.service';
 
-const { computed,plus,minus} = resolve(CountService);
+const servive = resolve(CountService);
+console.log(servive);
+
 </script>
 <template>
-<button @click="plus">plus</button>
-
-<p>{{computed}}</p>
-
-<button @click="minus">minus</button>
+<p>{{servive}}</p>
 
 
 

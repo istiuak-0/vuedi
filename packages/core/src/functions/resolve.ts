@@ -1,15 +1,17 @@
-import {
-  addInstanceProperties,
-  addInstanceSymbols,
-  addPrototypeProperties,
-  addStaticProperties,
-  addStaticSymbols,
-} from '../libs/live-access';
+import { addInstanceProperties } from '../libs/live-access/instance-properties';
+import { addInstanceSymbols } from '../libs/live-access/instance-symbols';
+import { addPrototypeProperties } from '../libs/live-access/prototype-properties';
+import { addStaticProperties } from '../libs/live-access/static-properties';
+import { addStaticSymbols } from '../libs/live-access/static-symbols';
 import { serviceRegistry } from '../libs/registry';
 import { getServiceToken } from '../libs/service-token';
 import type { ServiceConstructor } from '../libs/types';
 
-type ServiceWithStatics<T extends ServiceConstructor> = T & InstanceType<T>;
+type ResolvedService<T extends ServiceConstructor> = {
+  [K in keyof InstanceType<T>]: InstanceType<T>[K];
+} & {
+  [K in keyof T]: T[K];
+};
 
 /**
  * Resolves a global singleton service into a destructurable object with:
@@ -40,5 +42,5 @@ export function resolve<T extends ServiceConstructor>(serviceClass: T) {
 
   addPrototypeProperties(instance, obj);
 
-  return obj as ServiceWithStatics<T>;
+  return obj as ResolvedService<T>;
 }

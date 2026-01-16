@@ -122,13 +122,79 @@ function exposeToChildren(classOrInstance) {
   }
 }
 
-// src/libs/live-access.ts
-function hasKey(obj, key) {
-  if (typeof key === "symbol") {
-    return Object.getOwnPropertySymbols(obj).includes(key);
-  }
-  return Object.hasOwn(obj, key);
+// src/libs/live-access/instance-properties.ts
+function addInstanceProperties(serviceInstance, targetObj) {
+  const instanceKeys = Object.getOwnPropertyNames(serviceInstance);
+  instanceKeys.forEach((key) => {
+    if (key in targetObj) return;
+    const descriptor = Object.getOwnPropertyDescriptor(serviceInstance, key);
+    if (typeof descriptor.value === "function") {
+      console.log("Instance method is in object keys instead of prototype");
+      return;
+    }
+    if (descriptor.get || descriptor.set) {
+      return;
+    }
+    Object.defineProperty(targetObj, key, {
+      get() {
+        return serviceInstance[key];
+      },
+      set(v) {
+        serviceInstance[key] = v;
+      },
+      enumerable: true,
+      configurable: true
+    });
+  });
 }
+
+// src/libs/live-access/instance-symbols.ts
+function addInstanceSymbols(serviceInstance, targetObj) {
+  const instanceSymbolKeys = Object.getOwnPropertySymbols(serviceInstance);
+  instanceSymbolKeys.forEach((key) => {
+    Object.defineProperty(targetObj, key, {
+      get() {
+        return serviceInstance[key];
+      },
+      set(v) {
+        serviceInstance[key] = v;
+      },
+      enumerable: true,
+      configurable: true
+    });
+  });
+}
+
+// src/libs/live-access/prototype-properties.ts
+function addPrototypeProperties(serviceInstance, targetObj) {
+  let currentProto = Object.getPrototypeOf(serviceInstance);
+  while (currentProto && currentProto !== Object.prototype) {
+    const protoKeys = Object.getOwnPropertyNames(currentProto);
+    const filteredKeys = protoKeys.filter((key) => key !== "constructor");
+    filteredKeys.forEach((key) => {
+      if (hasKey(targetObj, key)) return;
+      const descriptor = Object.getOwnPropertyDescriptor(currentProto, key);
+      if (descriptor.get || descriptor.set) {
+        const newDesc = {
+          enumerable: true,
+          configurable: true
+        };
+        if (descriptor.get) {
+          newDesc.get = () => descriptor.get.call(serviceInstance);
+        }
+        if (descriptor.set) {
+          newDesc.set = (value) => descriptor.set.call(serviceInstance, value);
+        }
+        Object.defineProperty(targetObj, key, newDesc);
+      } else if (typeof descriptor.value === "function") {
+        targetObj[key] = descriptor.value.bind(serviceInstance);
+      }
+    });
+    currentProto = Object.getPrototypeOf(currentProto);
+  }
+}
+
+// src/libs/live-access/static-properties.ts
 function addStaticProperties(serviceClass, targetObj) {
   const allStaticKeys = Object.getOwnPropertyNames(serviceClass);
   const userDefinedStaticKeys = allStaticKeys.filter((key) => !["length", "name", "prototype"].includes(key));
@@ -162,59 +228,8 @@ function addStaticProperties(serviceClass, targetObj) {
     }
   });
 }
-function addPrototypeProperties(serviceInstance, targetObj) {
-  let currentProto = Object.getPrototypeOf(serviceInstance);
-  while (currentProto && currentProto !== Object.prototype) {
-    const protoKeys = Object.getOwnPropertyNames(currentProto);
-    const filteredKeys = protoKeys.filter((key) => key !== "constructor");
-    filteredKeys.forEach((key) => {
-      if (hasKey(targetObj, key)) return;
-      const descriptor = Object.getOwnPropertyDescriptor(currentProto, key);
-      if (descriptor.get || descriptor.set) {
-        const newDesc = {
-          enumerable: true,
-          configurable: true
-        };
-        if (descriptor.get) {
-          newDesc.get = () => descriptor.get.call(serviceInstance);
-        }
-        if (descriptor.set) {
-          newDesc.set = (value) => descriptor.set.call(serviceInstance, value);
-        }
-        Object.defineProperty(serviceInstance, key, newDesc);
-      } else if (typeof descriptor.value === "function") {
-        serviceInstance[key] = descriptor.value.bind(serviceInstance);
-      } else {
-        Object.defineProperty(targetObj, key, {
-          get() {
-            return serviceInstance[key];
-          },
-          set(v) {
-            serviceInstance[key] = v;
-          },
-          enumerable: true,
-          configurable: true
-        });
-      }
-    });
-    currentProto = Object.getPrototypeOf(currentProto);
-  }
-}
-function addInstanceProperties(serviceInstance, targeObj) {
-  const instanceKeys = Object.keys(serviceInstance);
-  instanceKeys.forEach((key) => {
-    Object.defineProperty(targeObj, key, {
-      get() {
-        return serviceInstance[key];
-      },
-      set(v) {
-        serviceInstance[key] = v;
-      },
-      enumerable: true,
-      configurable: true
-    });
-  });
-}
+
+// src/libs/live-access/static-symbols.ts
 function addStaticSymbols(serviceClass, targeObj) {
   const staticSymbolKeys = Object.getOwnPropertySymbols(serviceClass);
   staticSymbolKeys.forEach((key) => {
@@ -245,21 +260,6 @@ function addStaticSymbols(serviceClass, targeObj) {
         configurable: true
       });
     }
-  });
-}
-function addInstanceSymbols(serviceInstance, targetObj) {
-  const instanceSymbolKeys = Object.getOwnPropertySymbols(serviceInstance);
-  instanceSymbolKeys.forEach((key) => {
-    Object.defineProperty(targetObj, key, {
-      get() {
-        return serviceInstance[key];
-      },
-      set(v) {
-        serviceInstance[key] = v;
-      },
-      enumerable: true,
-      configurable: true
-    });
   });
 }
 

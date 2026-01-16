@@ -10,4 +10,5 @@ console.log(typeof plus);
   <div>{{ date }}</div>
   <button @click="plus()">plus</button>
   <button @click="minus()">minus</button>
+  <div>l</div>
 </template>

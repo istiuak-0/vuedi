@@ -14,7 +14,11 @@ type ServiceMetadata = {
 
 declare function exposeToChildren<T extends ServiceConstructor>(classOrInstance: T | InstanceType<T>): void;
 
-type ServiceWithStatics<T extends ServiceConstructor> = T & InstanceType<T>;
+type ResolvedService<T extends ServiceConstructor> = {
+    [K in keyof InstanceType<T>]: InstanceType<T>[K];
+} & {
+    [K in keyof T]: T[K];
+};
 /**
  * Resolves a global singleton service into a destructurable object with:
  * - Live getters for reactive state (ref, computed, etc.)
@@ -25,7 +29,7 @@ type ServiceWithStatics<T extends ServiceConstructor> = T & InstanceType<T>;
  * @param {T} serviceClass
  * @returns {InstanceType<T>}
  */
-declare function resolve<T extends ServiceConstructor>(serviceClass: T): ServiceWithStatics<T>;
+declare function resolve<T extends ServiceConstructor>(serviceClass: T): ResolvedService<T>;
 
 declare function resolveFromContext<T extends ServiceConstructor>(serviceClass: T): InstanceType<T> | undefined;
 
