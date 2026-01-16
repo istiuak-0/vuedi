@@ -12,21 +12,32 @@ type ServiceMetadata = {
     token: symbol;
 };
 
-declare function Register(): <C extends ServiceConstructor>(constructor: C) => C;
-
 declare function exposeToChildren<T extends ServiceConstructor>(classOrInstance: T | InstanceType<T>): void;
 
-declare function resolve<T extends ServiceConstructor>(serviceClass: T): InstanceType<T>;
+type ServiceWithStatics<T extends ServiceConstructor> = T & InstanceType<T>;
+/**
+ * Resolves a global singleton service into a destructurable object with:
+ * - Live getters for reactive state (ref, computed, etc.)
+ * - Bound methods that preserve correct `this` context
+ *
+ * @export
+ * @template {ServiceConstructor} T
+ * @param {T} serviceClass
+ * @returns {InstanceType<T>}
+ */
+declare function resolve<T extends ServiceConstructor>(serviceClass: T): ServiceWithStatics<T>;
 
 declare function resolveFromContext<T extends ServiceConstructor>(serviceClass: T): InstanceType<T> | undefined;
 
 declare function resolveInstance<T extends ServiceConstructor>(serviceClass: T): InstanceType<T>;
 
 declare const SERVICE_INTERNAL_METADATA: unique symbol;
-declare const serviceRegistry: Map<symbol, any>;
+declare const serviceRegistry: Map<symbol, object>;
 declare const serviceRefView: WeakMap<object, any>;
 
 declare function getServiceRef<T extends InstanceType<ServiceConstructor>>(instance: T): T;
+
+declare function Register(): <C extends ServiceConstructor>(constructor: C) => C;
 
 type VueDIOptions = {
     services: ServiceConstructor[];

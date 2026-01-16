@@ -1,37 +1,17 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { resolve } from '../lib/Getter';
+import { resolve } from '@vuedi/core';
 
-class Getter {
-  data = ref(0);
+import { CountService } from '../services/Count.service';
 
-  plus() {
-    this.data.value++;
-  }
-
-  minus() {
-    this.data.value++;
-  }
-
-
-unwatch=watch(this.data,(newValue)=>{
-  console.log(newValue);
-  
-})
-
-
-
-}
-
-const { data,plus } = resolve(Getter);
-
-console.log(data);
-
+const { computed,plus,minus} = resolve(CountService);
 </script>
 <template>
+<button @click="plus">plus</button>
+
+<p>{{computed}}</p>
+
+<button @click="minus">minus</button>
 
 
-  <p>{{data}}</p>
 
-  <button @click="data++">click</button>
 </template>

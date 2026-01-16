@@ -1,22 +1,5 @@
 "use strict";
 
-// src/libs/registry.ts
-var SERVICE_INTERNAL_METADATA = /* @__PURE__ */ Symbol("VUEDI_SERVICE_METADATA");
-var serviceRegistry = /* @__PURE__ */ new Map();
-var serviceRefView = /* @__PURE__ */ new WeakMap();
-
-// src/decorators/register.ts
-function Register() {
-  return function(constructor) {
-    if (constructor[SERVICE_INTERNAL_METADATA]?.token) {
-      return constructor;
-    }
-    const token = /* @__PURE__ */ Symbol(`vuedi:service:${constructor.name || "Anonymous"}`);
-    constructor[SERVICE_INTERNAL_METADATA] = { token };
-    return constructor;
-  };
-}
-
 // src/functions/expose-children.ts
 import { getCurrentInstance, onScopeDispose, provide } from "vue";
 
@@ -24,6 +7,11 @@ import { getCurrentInstance, onScopeDispose, provide } from "vue";
 function ImplementsDispose(instance) {
   return typeof instance.dispose === "function";
 }
+
+// src/libs/registry.ts
+var SERVICE_INTERNAL_METADATA = /* @__PURE__ */ Symbol("VUEDI_SERVICE_METADATA");
+var serviceRegistry = /* @__PURE__ */ new Map();
+var serviceRefView = /* @__PURE__ */ new WeakMap();
 
 // src/libs/service-refs.ts
 import { computed, isReactive, isRef, toRaw, toRef } from "vue";
@@ -99,31 +87,160 @@ function exposeToChildren(classOrInstance) {
   }
 }
 
+// src/libs/live-access.ts
+function hasKey(obj, key) {
+  if (typeof key === "symbol") {
+    return Object.getOwnPropertySymbols(obj).includes(key);
+  }
+  return Object.hasOwn(obj, key);
+}
+function addStaticProperties(serviceClass, targetObj) {
+  const allStaticKeys = Object.getOwnPropertyNames(serviceClass);
+  const userDefinedStaticKeys = allStaticKeys.filter((key) => !["length", "name", "prototype"].includes(key));
+  userDefinedStaticKeys.forEach((key) => {
+    const descriptor = Object.getOwnPropertyDescriptor(serviceClass, key);
+    if (typeof descriptor.value === "function") {
+      targetObj[key] = descriptor.value.bind(serviceClass);
+    } else if (descriptor.get || descriptor.set) {
+      const newDesc = {
+        enumerable: true,
+        configurable: true
+      };
+      if (descriptor.get) {
+        newDesc.get = () => descriptor.get.call(serviceClass);
+      }
+      if (descriptor.set) {
+        newDesc.set = (value) => descriptor.set.call(serviceClass, value);
+      }
+      Object.defineProperty(targetObj, key, newDesc);
+    } else {
+      Object.defineProperty(targetObj, key, {
+        get() {
+          return serviceClass[key];
+        },
+        set(v) {
+          serviceClass[key] = v;
+        },
+        enumerable: true,
+        configurable: true
+      });
+    }
+  });
+}
+function addPrototypeProperties(serviceInstance, targetObj) {
+  let currentProto = Object.getPrototypeOf(serviceInstance);
+  while (currentProto && currentProto !== Object.prototype) {
+    const protoKeys = Object.getOwnPropertyNames(currentProto);
+    const filteredKeys = protoKeys.filter((key) => key !== "constructor");
+    filteredKeys.forEach((key) => {
+      if (hasKey(targetObj, key)) return;
+      const descriptor = Object.getOwnPropertyDescriptor(currentProto, key);
+      if (descriptor.get || descriptor.set) {
+        const newDesc = {
+          enumerable: true,
+          configurable: true
+        };
+        if (descriptor.get) {
+          newDesc.get = () => descriptor.get.call(serviceInstance);
+        }
+        if (descriptor.set) {
+          newDesc.set = (value) => descriptor.set.call(serviceInstance, value);
+        }
+        Object.defineProperty(serviceInstance, key, newDesc);
+      } else if (typeof descriptor.value === "function") {
+        serviceInstance[key] = descriptor.value.bind(serviceInstance);
+      } else {
+        Object.defineProperty(targetObj, key, {
+          get() {
+            return serviceInstance[key];
+          },
+          set(v) {
+            serviceInstance[key] = v;
+          },
+          enumerable: true,
+          configurable: true
+        });
+      }
+    });
+    currentProto = Object.getPrototypeOf(currentProto);
+  }
+}
+function addInstanceProperties(serviceInstance, targeObj) {
+  const instanceKeys = Object.keys(serviceInstance);
+  instanceKeys.forEach((key) => {
+    Object.defineProperty(targeObj, key, {
+      get() {
+        return serviceInstance[key];
+      },
+      set(v) {
+        serviceInstance[key] = v;
+      },
+      enumerable: true,
+      configurable: true
+    });
+  });
+}
+function addStaticSymbols(serviceClass, targeObj) {
+  const staticSymbolKeys = Object.getOwnPropertySymbols(serviceClass);
+  staticSymbolKeys.forEach((key) => {
+    const descriptor = Object.getOwnPropertyDescriptor(serviceClass, key);
+    if (typeof descriptor.value === "function") {
+      targeObj[key] = descriptor.value.bind(serviceClass);
+    } else if (descriptor.get || descriptor.set) {
+      const newDesc = {
+        enumerable: true,
+        configurable: true
+      };
+      if (descriptor.get) {
+        newDesc.get = () => descriptor.get.call(serviceClass);
+      }
+      if (descriptor.set) {
+        newDesc.set = (value) => descriptor.set.call(serviceClass, value);
+      }
+      Object.defineProperty(targeObj, key, newDesc);
+    } else {
+      Object.defineProperty(targeObj, key, {
+        get() {
+          return serviceClass[key];
+        },
+        set(v) {
+          serviceClass[key] = v;
+        },
+        enumerable: true,
+        configurable: true
+      });
+    }
+  });
+}
+function addInstanceSymbols(serviceInstance, targetObj) {
+  const instanceSymbolKeys = Object.getOwnPropertySymbols(serviceInstance);
+  instanceSymbolKeys.forEach((key) => {
+    Object.defineProperty(targetObj, key, {
+      get() {
+        return serviceInstance[key];
+      },
+      set(v) {
+        serviceInstance[key] = v;
+      },
+      enumerable: true,
+      configurable: true
+    });
+  });
+}
+
 // src/functions/resolve.ts
 function resolve(serviceClass) {
   const serviceToken = getServiceToken(serviceClass);
   if (!serviceRegistry.has(serviceToken)) {
     serviceRegistry.set(serviceToken, new serviceClass());
   }
-  let instance = serviceRegistry.get(serviceToken);
+  const instance = serviceRegistry.get(serviceToken);
   const obj = {};
-  for (const key in instance) {
-    Object.defineProperty(obj, key, {
-      get: () => instance[key],
-      enumerable: true
-    });
-  }
-  let proto = instance;
-  while ((proto = Object.getPrototypeOf(proto)) && proto !== Object.prototype) {
-    for (const name of Object.getOwnPropertyNames(proto)) {
-      if (name !== "constructor" && !(name in obj)) {
-        const value = proto[name];
-        if (typeof value === "function") {
-          obj[name] = value.bind(instance);
-        }
-      }
-    }
-  }
+  addStaticProperties(serviceClass, obj);
+  addStaticSymbols(serviceClass, obj);
+  addInstanceProperties(instance, obj);
+  addInstanceSymbols(instance, obj);
+  addPrototypeProperties(instance, obj);
   return obj;
 }
 
@@ -153,10 +270,22 @@ function resolveInstance(serviceClass) {
       }
     });
   }
-  return getServiceRef(instance);
+  return instance;
 }
 
-// src/plugin/vuedi.plugin.ts
+// src/register.decorator.ts
+function Register() {
+  return function(constructor) {
+    if (constructor[SERVICE_INTERNAL_METADATA]?.token) {
+      return constructor;
+    }
+    const token = /* @__PURE__ */ Symbol(`vuedi:service:${constructor.name || "Anonymous"}`);
+    constructor[SERVICE_INTERNAL_METADATA] = { token };
+    return constructor;
+  };
+}
+
+// src/vuedi.plugin.ts
 var vuediPlugin = (_app, options) => {
   if (options?.services) {
     options.services.forEach((item) => {

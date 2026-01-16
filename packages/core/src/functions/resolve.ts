@@ -9,6 +9,8 @@ import { serviceRegistry } from '../libs/registry';
 import { getServiceToken } from '../libs/service-token';
 import type { ServiceConstructor } from '../libs/types';
 
+type ServiceWithStatics<T extends ServiceConstructor> = T & InstanceType<T>;
+
 /**
  * Resolves a global singleton service into a destructurable object with:
  * - Live getters for reactive state (ref, computed, etc.)
@@ -38,5 +40,5 @@ export function resolve<T extends ServiceConstructor>(serviceClass: T) {
 
   addPrototypeProperties(instance, obj);
 
-  return obj as InstanceType<T>;
+  return obj as ServiceWithStatics<T>;
 }

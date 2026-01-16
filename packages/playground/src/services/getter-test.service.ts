@@ -1,3 +1,4 @@
+import { Register } from '@vuedi/core';
 import { ref } from 'vue';
 
 // --- Symbols ---
@@ -42,6 +43,8 @@ class MiddleService extends BaseService {
 }
 
 // --- Final Service with Statics & Edge Cases ---
+
+@Register()
 export class GetterTestService extends MiddleService {
   // Instance properties
   instanceRef = ref(100);

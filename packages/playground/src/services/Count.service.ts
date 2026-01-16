@@ -21,18 +21,5 @@ export class CountService {
   }
 }
 
-@Register()
-export class Http {}
 
-@Register()
-export class Query {
-  private http = resolve(Http);
 
-  private datastates = {};
-
-  //@ts-ignore
-  res = this.http.query(() => ({
-    queryKey: [],
-    queryFn: () => fetch('asaaSD'),
-  }));
-}
