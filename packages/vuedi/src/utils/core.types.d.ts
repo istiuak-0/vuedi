@@ -1,6 +1,6 @@
 export interface ServiceOptions {
   facade?: boolean;
-};
+}
 
 export type ServiceWithDispose<T> = T & {
   dispose(): void;
@@ -8,9 +8,10 @@ export type ServiceWithDispose<T> = T & {
 
 export type ServiceMetadata = {
   token: symbol;
+  facade: boolean;
 };
 
-export type ResolvedService<T extends ServiceConstructor> = {
+export type FacadeService<T extends ServiceConstructor> = {
   [K in keyof InstanceType<T>]: InstanceType<T>[K];
 } & {
   [K in keyof T]: T[K];

@@ -1,7 +1,7 @@
 import { getCurrentInstance, inject, onScopeDispose } from 'vue';
-import type { ResolvedService, ServiceConstructor, ServiceWithDispose } from '../utils/core.types';
-import { getServiceToken, ImplementsDispose, serviceRefView, serviceRegistry } from '../utils/core.utils';
-import { addInstanceProperties, addPrototypeProperties, addStaticProperties } from './facade';
+import type { FacadeService, ServiceConstructor, ServiceWithDispose } from '../utils/core.types';
+import { getServiceMeta, ImplementsDispose, RootRegistry } from '../utils/core.utils';
+import { ReactiveFacade } from './facade';
 
 /**
  * Resolves a global singleton service into a destructurable object with:
@@ -11,31 +11,32 @@ import { addInstanceProperties, addPrototypeProperties, addStaticProperties } fr
  * @export
  * @template {ServiceConstructor} T
  * @param {T} serviceClass
- * @returns {InstanceType<T>}
+ * @param {*} [facade=new ReactiveFacade()]
+ * @returns {(InstanceType<T> |  FacadeService<T>)}
  */
-export function obtain<T extends ServiceConstructor>(serviceClass: T) {
-  const serviceToken = getServiceToken(serviceClass);
+export function obtain<T extends ServiceConstructor>(
+  serviceClass: T,
+  facade = new ReactiveFacade()
+): InstanceType<T> | FacadeService<T> {
+  const serviceMeta = getServiceMeta(serviceClass);
 
   // Ensure singleton: create once, reuse forever
-  if (!serviceRegistry.has(serviceToken)) {
-    serviceRegistry.set(serviceToken, new serviceClass());
+  if (!RootRegistry.has(serviceMeta.token)) {
+    RootRegistry.set(serviceMeta.token, new serviceClass());
   }
+  const instance = RootRegistry.get(serviceMeta.token)!;
 
-  const instance = serviceRegistry.get(serviceToken)!;
-  const obj: Record<string, any> = {};
-
-  addStaticProperties(serviceClass, obj);
-  addInstanceProperties(instance, obj);
-  addPrototypeProperties(instance, obj);
-
-  return obj as ResolvedService<T>;
+  if (serviceMeta.facade) {
+    return facade.createFacadeObj(serviceClass, instance) as FacadeService<T>;
+  } else {
+    return instance as InstanceType<T>;
+  }
 }
 
 export function obtainNew<T extends ServiceConstructor>(serviceClass: T): InstanceType<T> {
   let instance = new serviceClass();
   const componentInstance = getCurrentInstance();
 
-  /// here if i want i can tap into other hooks
   if (componentInstance) {
     onScopeDispose(() => {
       if (ImplementsDispose(instance)) {
@@ -45,21 +46,17 @@ export function obtainNew<T extends ServiceConstructor>(serviceClass: T): Instan
           console.error('[VUE DI]: Error in scope dispose:', error);
         }
       }
-
-      if (serviceRefView.has(instance)) {
-        serviceRefView.delete(instance);
-      }
     });
   }
   return instance as InstanceType<T>;
 }
 
 export function passed<T extends ServiceConstructor>(serviceClass: T) {
-  const serviceToken = getServiceToken(serviceClass);
-  return inject<InstanceType<T>>(serviceToken);
+  const serviceMeta = getServiceMeta(serviceClass);
+  return inject<InstanceType<T>>(serviceMeta.token);
 }
 
-export function pass<T extends ServiceConstructor>(_classOrInstance: T | InstanceType<T>): void {
+export function pass<T extends ServiceConstructor>(classOrInstance: T | InstanceType<T>): void {
   // let instance: InstanceType<T>;
   // let ownsInstance = false;
   // if (typeof classOrInstance === 'function') {
