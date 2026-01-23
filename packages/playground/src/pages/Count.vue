@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { resolve } from '@vuedi/core';
+
+import { obtain } from 'vuedi';
 import { CountService } from '../services/Count.service';
 
-const { data, computedData, plus, minus } = resolve(CountService);
+const { data, computedData, plus, minus } = obtain(CountService);
 
 
 console.log(plus);

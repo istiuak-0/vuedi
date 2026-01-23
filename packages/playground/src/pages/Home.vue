@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { resolve } from '@vuedi/core';
+import { obtain } from 'vuedi';
 import { BinanceService } from '../services/Binance.service';
 
-const { connected, socket, lastMessage } = resolve(BinanceService);
+const { connected, socket, lastMessage } = obtain(BinanceService);
 </script>
 
 <template>

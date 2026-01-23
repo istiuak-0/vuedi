@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { resolve } from '@vuedi/core';
 
+import { obtain } from 'vuedi';
 import { CountService } from '../services/Count.service';
 
-const servive = resolve(CountService);
+const servive = obtain(CountService);
 console.log(servive);
 
 </script>

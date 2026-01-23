@@ -1,5 +1,5 @@
-import { Register } from '@vuedi/core';
 import { ref } from 'vue';
+import { Service } from 'vuedi';
 
 // --- Symbols ---
 export const INTERNAL_SYMBOL = Symbol('internal');
@@ -44,7 +44,7 @@ class MiddleService extends BaseService {
 
 // --- Final Service with Statics & Edge Cases ---
 
-@Register()
+@Service()
 export class GetterTestService extends MiddleService {
   // Instance properties
   instanceRef = ref(100);

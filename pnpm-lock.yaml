@@ -15,29 +15,8 @@ importers:
         specifier: ~5.9.3
         version: 5.9.3
 
-  packages/core:
-    devDependencies:
-      '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.3
-      tsup:
-        specifier: ^8.5.1
-        version: 8.5.1(jiti@2.6.1)(postcss@8.5.6)(typescript@5.9.3)
-      typescript:
-        specifier: ~5.9.3
-        version: 5.9.3
-      vitest:
-        specifier: ^4.0.16
-        version: 4.0.16(@types/node@22.19.3)(jiti@2.6.1)
-      vue:
-        specifier: ^3.5.26
-        version: 3.5.26(typescript@5.9.3)
-
   packages/playground:
     dependencies:
-      '@vuedi/core':
-        specifier: workspace:*
-        version: link:../core
       pinia:
         specifier: ^3.0.4
         version: 3.0.4(typescript@5.9.3)(vue@3.5.26(typescript@5.9.3))
@@ -47,6 +26,9 @@ importers:
       vue-router:
         specifier: ^4.6.4
         version: 4.6.4(vue@3.5.26(typescript@5.9.3))
+      vuedi:
+        specifier: workspace:*
+        version: link:../vuedi
     devDependencies:
       '@tsconfig/node24':
         specifier: ^24.0.3
@@ -72,6 +54,24 @@ importers:
       vue-tsc:
         specifier: ^3.2.1
         version: 3.2.1(typescript@5.9.3)
+
+  packages/vuedi:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.19.3
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(jiti@2.6.1)(postcss@8.5.6)(typescript@5.9.3)
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.16
+        version: 4.0.16(@types/node@22.19.3)(jiti@2.6.1)
+      vue:
+        specifier: ^3.5.26
+        version: 3.5.26(typescript@5.9.3)
 
 packages:
 

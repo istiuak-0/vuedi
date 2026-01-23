@@ -1,8 +1,9 @@
 import { ref } from 'vue';
-import { Register, type Disposable } from '@vuedi/core';
+import { Service } from 'vuedi';
 
-@Register()
-export class BinanceService implements Disposable {
+
+@Service()
+export class BinanceService {
   public socket: WebSocket | null = null;
   public connected = ref(false);
   public lastMessage = ref<any>({});

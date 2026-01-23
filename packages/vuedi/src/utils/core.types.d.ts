@@ -1,5 +1,5 @@
-export type ServiceOptions = {
-  facade?: boolean=true;
+export interface ServiceOptions {
+  facade?: boolean;
 };
 
 export type ServiceWithDispose<T> = T & {

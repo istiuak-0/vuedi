@@ -1,11 +1,11 @@
-import { Register } from '@vuedi/core';
 import { computed, ref } from 'vue';
+import { Service } from 'vuedi';
 
 class BaseService {
   baseData = ref(100);
 }
 
-@Register()
+@Service()
 export class CountService extends BaseService {
   data = ref<number>(0);
 
