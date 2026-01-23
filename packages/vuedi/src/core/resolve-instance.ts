@@ -1,5 +1,6 @@
 import { getCurrentInstance, onScopeDispose } from 'vue';
-import { ImplementsDispose, serviceRefView, type ServiceConstructor, type ServiceWithDispose } from './utils';
+import type { ServiceConstructor, ServiceWithDispose } from '../utils/core.types';
+import { ImplementsDispose, serviceRefView } from '../utils/core.utils';
 
 export function resolveInstance<T extends ServiceConstructor>(serviceClass: T): InstanceType<T> {
   let instance = new serviceClass();

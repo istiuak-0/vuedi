@@ -1,7 +1,6 @@
-import { addInstanceProperties } from './live-access/instance-properties';
-import { addPrototypeProperties } from './live-access/prototype-properties';
-import { addStaticProperties } from './live-access/static-properties';
-import { getServiceToken, serviceRegistry, type ResolvedService, type ServiceConstructor } from './utils';
+import type { ResolvedService, ServiceConstructor } from '../utils/core.types';
+import { getServiceToken, serviceRegistry } from '../utils/core.utils';
+import { addInstanceProperties, addPrototypeProperties, addStaticProperties } from './reactive-facade';
 
 /**
  * Resolves a global singleton service into a destructurable object with:
