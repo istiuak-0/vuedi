@@ -9,7 +9,7 @@ export function getServiceMeta(target: ServiceConstructor | object) {
 
   const meta = (ctor as any)[SERVICE_METADATA] as ServiceMetadata;
   if (!meta?.token) {
-    throw new Error(`[VUE DI]: ${ctor?.name || 'Unknown'} is not decorated with @Register()`);
+    throw new Error(`[VUE DI]: ${ctor?.name || 'Unknown'} is not decorated with @Service()`);
   }
   return meta;
 }
