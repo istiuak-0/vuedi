@@ -1,6 +1,6 @@
 import { getCurrentInstance, inject, onScopeDispose } from 'vue';
 import type { FacadeService, ServiceConstructor } from '../utils/core.types';
-import { getServiceMeta, ImplementsDispose, RootRegistry } from '../utils/core.utils';
+import { getServiceMeta, ImplementsDispose, RootRegistry, TempRegistry } from '../utils/core.utils';
 import { ReactiveFacade } from './facade';
 
 /**
@@ -24,14 +24,26 @@ export function obtain<T extends ServiceConstructor>(
   if (!RootRegistry.has(serviceMeta.token)) {
     RootRegistry.set(serviceMeta.token, new serviceClass());
   }
+  
   const instance = RootRegistry.get(serviceMeta.token)!;
 
   if (serviceMeta.facade) {
-    return facade.createFacadeObj(serviceClass, instance) as FacadeService<T>;
+    if (!TempRegistry.has(serviceMeta.token)) {
+      TempRegistry.set(serviceMeta.token, facade.createFacadeObj(serviceClass, instance));
+    }
+
+    return TempRegistry.get(serviceMeta.token) as FacadeService<T>;
   } else {
     return instance as InstanceType<T>;
   }
 }
+
+
+
+
+
+
+
 
 export function obtainNew<T extends ServiceConstructor>(serviceClass: T): InstanceType<T> {
   let instance = new serviceClass();
