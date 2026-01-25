@@ -1,7 +1,15 @@
-import type { Router } from 'vue-router';
+import type { RouteLocationNormalizedGeneric, Router } from 'vue-router';
 import { Service } from '../core';
 
-export interface RouterService extends Router {}
+export interface Nav
+  extends
+    Omit<Router, 'install' | 'options' | 'currentRoute'>,
+    Pick<
+      RouteLocationNormalizedGeneric,
+      'path' | 'name' | 'params' | 'query' | 'hash' | 'fullPath' | 'matched' | 'meta'
+    > {}
 
-@Service()
-export class RouterService {}
+@Service({
+  facade: false,
+})
+export class Nav {}

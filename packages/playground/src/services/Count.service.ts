@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue';
-import { obtain, Service } from 'vuedi';
-import { RouterService } from 'vuedi/helpers';
+import { Service } from 'vuedi';
+
 
 
 class BaseService {
@@ -9,7 +9,6 @@ class BaseService {
 
 @Service()
 export class CountService extends BaseService {
-  private router=obtain(RouterService)
   data = ref<number>(0);
 
   computedData = computed(() => {
@@ -29,10 +28,6 @@ export class CountService extends BaseService {
   }
 
 
-navigate(){
-
-this.router.push('/')
-}
 
 
 
