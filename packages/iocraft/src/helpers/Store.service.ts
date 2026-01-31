@@ -8,6 +8,8 @@ export function Store<T extends Record<string, any>>(initialState: T) {
 
     select<K extends keyof T>(_key: K) {}
 
+    selectAll(){}
+
     computed() {}
 
     watch() {}
