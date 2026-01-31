@@ -9,8 +9,7 @@
     "iocraft:dev": "pnpm --filter iocraft dev",
     "playground:dev": "pnpm --filter @iocraft/playground dev",
     "typecheck": "pnpm --recursive typecheck",
-    "core:test": "pnpm --filter @iocraft/core  test",
-    "lint": "pnpm --recursive lint"
+    "iocraft:test": "pnpm --filter iocraft  test"
   },
   "devDependencies": {
     "typescript": "~5.9.3",
