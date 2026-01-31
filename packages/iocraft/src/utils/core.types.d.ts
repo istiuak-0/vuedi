@@ -1,7 +1,6 @@
 import type { Router } from 'vue-router';
 
 export type ServiceConstructor<T extends object = object> = new (...args: any[]) => T;
-export type ServiceView<T extends ServiceConstructor> = InstanceType<T> & T;
 
 export type PluginOptions = {
   EagerLoad: ServiceConstructor[];

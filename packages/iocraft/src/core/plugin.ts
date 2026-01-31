@@ -22,7 +22,7 @@ export const VuediPlugin: FunctionPlugin<[Partial<PluginOptions>?]> = (_app, opt
 
       if (serviceMeta.facade) {
         if (!TempRegistry.has(serviceMeta.token)) {
-          TempRegistry.set(serviceMeta.token, createFacadeObj(service, instance));
+          TempRegistry.set(serviceMeta.token, createFacadeObj(instance));
         }
       }
     });
