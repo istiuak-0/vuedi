@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Inject } from 'vuedi';
+import { Inject } from 'iocraft';
 import { BinanceService } from '../services/Binance.service';
 
 const { connected, socket, lastMessage } = Inject(BinanceService);

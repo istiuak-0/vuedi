@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Inject } from 'vuedi';
+import { Inject } from 'iocraft';
 import { CountStore } from '../services/Count.service';
 
 const service = Inject(CountStore);

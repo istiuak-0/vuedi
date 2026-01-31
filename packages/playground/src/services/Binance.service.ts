@@ -1,5 +1,5 @@
+import { Provide } from 'iocraft';
 import { ref } from 'vue';
-import { Provide } from 'vuedi';
 
 
 @Provide()

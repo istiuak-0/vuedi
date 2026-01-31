@@ -2,11 +2,11 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import App from './App.vue';
 import { router } from './router';
-import { VuediPlugin } from 'vuedi';
+import { IocRaftPlugin } from 'iocraft';
 
 const app = createApp(App);
 app.use(router);
-app.use(VuediPlugin, {
+app.use(IocRaftPlugin, {
   router,
 });
 app.use(createPinia());

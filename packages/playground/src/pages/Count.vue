@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { Inject } from 'vuedi';
-import { Nav } from 'vuedi/helpers';
+
+import { Inject } from 'iocraft';
 import { CountStore } from '../services/Count.service';
+import { Nav } from 'iocraft/helpers';
 
 const store = Inject(CountStore);
 

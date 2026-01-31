@@ -1,6 +1,7 @@
+import { Provide } from 'iocraft';
+import { Store } from 'iocraft/helpers';
 import { watch } from 'vue';
-import { Provide } from 'vuedi';
-import { Store } from 'vuedi/helpers';
+
 
 @Provide()
 export class CountStore extends Store({

@@ -4,16 +4,12 @@
   "private": true,
   "scripts": {
     "i:all": "pnpm --recursive install",
-    "clean": "find . -name node_modules -type d -exec rm -rf {} + && rm -rf node_modules && pnpm --recursive exec rimraf dist",
+    "clean": "find . -name node_modules -type d -exec rm -rf {} + && rm -rf node_modules",
     "iocraft:build": "pnpm --filter iocraft build",
     "iocraft:dev": "pnpm --filter iocraft dev",
     "playground:dev": "pnpm --filter @iocraft/playground dev",
     "typecheck": "pnpm --recursive typecheck",
     "iocraft:test": "pnpm --filter iocraft  test"
-  },
-  "devDependencies": {
-    "typescript": "~5.9.3",
-    "rimraf": "^6.0.1"
   },
   "packageManager": "pnpm@10.18.0"
 }
