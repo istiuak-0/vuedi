@@ -30,7 +30,7 @@ jobs:
       - name: Publish to npm
         run: pnpm --filter vuedi publish --no-git-checks --access public --provenance
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
