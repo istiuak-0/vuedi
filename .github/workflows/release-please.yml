@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "packages/vuedi/**"
+      - "release-please-config.json"
+      - ".release-please-manifest.json"
 
 permissions:
   contents: write
