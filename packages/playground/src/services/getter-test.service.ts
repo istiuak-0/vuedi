@@ -1,5 +1,5 @@
+import { Provide } from 'iocraft';
 import { ref } from 'vue';
-import { Provide } from 'vuedi';
 
 export const INTERNAL_SYMBOL = Symbol('internal');
 export const USER_SYMBOL = Symbol('user');

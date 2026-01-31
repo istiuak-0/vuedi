@@ -1,25 +1,26 @@
 {
   "name": "iocraft",
   "version": "0.2.0",
-  "description": "A lightweight, type-safe Dependency Injection (DI) container for Vue 3 using the Composition API.",
+  "description": "A lightweight IOC container for Vue 3 using the Composition API.",
   "keywords": [
     "vue",
     "vue3",
     "dependency-injection",
     "di",
     "ioc",
+    "Inversion of Control",
     "composition-api",
     "typescript",
     "vue-plugin"
   ],
-  "homepage": "https://github.com/istiuak-0/vuedi#readme",
+  "homepage": "https://github.com/istiuak-0/iocraft#readme",
   "bugs": {
-    "url": "https://github.com/istiuak-0/vuedi/issues"
+    "url": "https://github.com/istiuak-0/iocraft/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/istiuak-0/vuedi.git",
-    "directory": "packages/vuedi"
+    "url": "git+https://github.com/istiuak-0/iocraft.git",
+    "directory": "packages/iocraft"
   },
   "license": "MIT",
   "author": {
@@ -46,15 +47,13 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
-    "test": "vitest",
-    "lint": "eslint ."
+    "test": "vitest"
   },
   "peerDependencies": {
     "vue": "^3.0.0",
     "vue-router": "^4.0.0"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
     "tsup": "^8.5.1",
     "typescript": "~5.9.3",
     "vitest": "^4.0.16",
@@ -67,6 +66,5 @@
   "publishConfig": {
     "access": "public",
     "provenance": true
-  },
-  "packageManager": "pnpm@10.18.0"
+  }
 }

@@ -4,7 +4,7 @@ import { getServiceMeta, RootRegistry, TempRegistry } from '../utils/core.utils'
 import { createFacadeObj, generateRouterFacade } from './facade';
 import { Nav } from '../helpers';
 
-export const VuediPlugin: FunctionPlugin<[Partial<PluginOptions>?]> = (_app, options?: Partial<PluginOptions>) => {
+export const IocRaftPlugin: FunctionPlugin<[Partial<PluginOptions>?]> = (_app, options?: Partial<PluginOptions>) => {
   if (options?.router) {
     RootRegistry.set(getServiceMeta(Nav).token, generateRouterFacade(options.router));
   }
@@ -22,7 +22,7 @@ export const VuediPlugin: FunctionPlugin<[Partial<PluginOptions>?]> = (_app, opt
 
       if (serviceMeta.facade) {
         if (!TempRegistry.has(serviceMeta.token)) {
-          TempRegistry.set(serviceMeta.token, createFacadeObj(service, instance));
+          TempRegistry.set(serviceMeta.token, createFacadeObj(instance));
         }
       }
     });

@@ -15,7 +15,7 @@ export function Provide(options?: ServiceOptions): <C extends ServiceConstructor
     }
 
     (constructor as any)[SERVICE_METADATA] = {
-      token: Symbol(`[VUE DI]: Service - ${constructor.name || 'Anonymous'}`),
+      token: Symbol(`[IOCRAFT]: Service - ${constructor.name || 'Anonymous'}`),
       facade: options?.facade ?? true,
     } satisfies ServiceMetadata;
 

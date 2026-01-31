@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "packages/vuedi/**"
+      - "packages/iocraft/**"
       - "release-please-config.json"
       - ".release-please-manifest.json"
 

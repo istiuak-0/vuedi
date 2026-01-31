@@ -1,4 +1,4 @@
-import type { ServiceConstructor, ServiceView } from '../utils/core.types';
+import type { ServiceConstructor } from '../utils/core.types';
 import { getServiceMeta, RootRegistry, TempRegistry } from '../utils/core.utils';
 import { createFacadeObj } from './facade';
 
@@ -6,14 +6,13 @@ import { createFacadeObj } from './facade';
  * Injects a global singleton service From Root Registry;
  *
  * @export
- * @template {ServiceConstructor} T
- * @param {T} serviceClass
- * @param {*} [facade=new ReactiveFacade()]
- * @returns {ServiceView<T>}
+ * @template {ServiceConstructor} T 
+ * @param {T} serviceClass 
+ * @returns {InstanceType<T>} 
  */
 export function Inject<T extends ServiceConstructor>(
   serviceClass: T,
-): ServiceView<T> {
+): InstanceType<T> {
   const serviceMeta = getServiceMeta(serviceClass);
 
   // Ensure singleton
@@ -25,13 +24,13 @@ export function Inject<T extends ServiceConstructor>(
 
   if (serviceMeta.facade) {
     if (!TempRegistry.has(serviceMeta.token)) {
-      TempRegistry.set(serviceMeta.token, createFacadeObj(serviceClass, instance));
+      TempRegistry.set(serviceMeta.token, createFacadeObj(instance));
     }
 
     instance = TempRegistry.get(serviceMeta.token)!;
   }
 
-  return instance as ServiceView<T>;
+  return instance as InstanceType<T>;
 }
 
 

@@ -29,7 +29,7 @@ function addInstanceProperties<T extends object>(
     const descriptor = Object.getOwnPropertyDescriptor(serviceInstance, key)!;
 
     if (typeof descriptor.value === 'function') {
-      console.warn(`[VUE DI]: Instance method "${String(key)}" found as own property. Consider moving to prototype.`);
+      console.warn(`[IOCRAFT]: Instance method "${String(key)}" found as own property. Consider moving to prototype.`);
       continue;
     }
 
@@ -50,46 +50,6 @@ function addInstanceProperties<T extends object>(
   }
 }
 
-function addStaticProperties<T extends object>(
-  serviceClass: ServiceConstructor<T>,
-  targetObj: Record<PropertyKey, unknown>
-) {
-  const staticKeys = [...Object.getOwnPropertyNames(serviceClass), ...Object.getOwnPropertySymbols(serviceClass)];
-
-  for (const key of staticKeys) {
-    if (hasKey(targetObj, key)) {
-      continue;
-    }
-
-    if (typeof key === 'string' && NativeKeys.has(key)) {
-      continue;
-    }
-
-    const descriptor = Object.getOwnPropertyDescriptor(serviceClass, key)!;
-
-    if (typeof descriptor.value === 'function') {
-      targetObj[key] = descriptor.value.bind(serviceClass);
-    } else if (descriptor.get || descriptor.set) {
-      Object.defineProperty(targetObj, key, {
-        get: descriptor.get ? () => descriptor.get!.call(serviceClass) : undefined,
-        set: descriptor.set ? (v: any) => descriptor.set!.call(serviceClass, v) : undefined,
-        enumerable: true,
-        configurable: true,
-      });
-    } else {
-      Object.defineProperty(targetObj, key, {
-        get() {
-          return serviceClass[key as keyof typeof serviceClass];
-        },
-        set(v) {
-          (serviceClass[key as keyof typeof serviceClass] as unknown) = v;
-        },
-        enumerable: true,
-        configurable: true,
-      });
-    }
-  }
-}
 
 function addPrototypeProperties<T extends object>(
   serviceInstance: InstanceType<ServiceConstructor<T>>,
@@ -133,12 +93,11 @@ function addPrototypeProperties<T extends object>(
  * @returns {{}}
  */
 export function createFacadeObj<T extends object>(
-  serviceClass: ServiceConstructor<T>,
   serviceInstance: InstanceType<ServiceConstructor<T>>
 ) {
   const targetObj = {};
 
-  addStaticProperties(serviceClass, targetObj);
+
   addInstanceProperties(serviceInstance, targetObj);
   addPrototypeProperties(serviceInstance, targetObj);
   return targetObj;

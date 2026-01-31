@@ -1,4 +1,4 @@
-# Security Policy for VueDI
+# Security Policy for iocraft
 
 ## Supported Versions
 
@@ -14,7 +14,7 @@ All previous versions (if any) are not supported.
 
 If you discover a security issue, **please do not create a public issue**. Instead:
 
-- Email `istiuak.0@gmail.com` with the subject: `VueDI Security Vulnerability`.
+- Email `istiuak.0@gmail.com` with the subject: `iocraft Security Vulnerability`.
 - Include:
   - Description of the issue
   - Steps to reproduce
@@ -27,4 +27,4 @@ If you discover a security issue, **please do not create a public issue**. Inste
 - Provide updates during the investigation.
 - Release a fix as soon as possible if the vulnerability is confirmed.
 
-Thank you for responsibly reporting vulnerabilities and helping keep VueDI secure.
+Thank you for responsibly reporting vulnerabilities and helping keep iocraft secure.

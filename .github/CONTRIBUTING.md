@@ -1,6 +1,6 @@
-# Contributing to VueDI
+# Contributing to iocraft
 
-Thank you for considering contributing to **VueDI**! We strive to maintain a high-quality, type-safe ecosystem for Vue developers, and your help makes that possible.
+Thank you for considering contributing to **iocraft**! We strive to maintain a high-quality, type-safe ecosystem for Vue developers, and your help makes that possible.
 
 ---
 
@@ -8,7 +8,7 @@ Thank you for considering contributing to **VueDI**! We strive to maintain a hig
 
 This repository is a **pnpm monorepo**. Understanding the directory layout is key to making effective contributions:
 
-* **`packages/vuedi`** — The core library. All production code and logic live here.
+* **`packages/iocraft`** — The core library. All production code and logic live here.
 * **`packages/playground`** — A Vue 3 development environment for testing and demoing changes.
 
 ---
