@@ -1,6 +1,5 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Vue DI Base",
   "compilerOptions": {
     "target": "ES2024",
     "lib": ["ES2024", "DOM", "DOM.Iterable"],
