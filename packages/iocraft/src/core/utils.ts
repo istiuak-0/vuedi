@@ -1,5 +1,5 @@
-import type { ServiceConstructor, ServiceMetadata } from './core';
 import { SERVICE_METADATA } from './internals';
+import type { ServiceConstructor, ServiceMetadata } from './types';
 
 /**
  * Get service metadata without instantiating
@@ -17,4 +17,3 @@ export function GetServiceMetadata(target: ServiceConstructor | object): Service
   }
   return meta;
 }
-

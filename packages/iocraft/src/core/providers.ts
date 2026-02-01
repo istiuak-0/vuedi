@@ -1,6 +1,5 @@
-import type { ServiceConstructor, ServiceMetadata, ServiceOptions } from "./core";
-import { SERVICE_METADATA } from "./internals";
-
+import { SERVICE_METADATA } from './internals';
+import type { ServiceConstructor, ServiceMetadata, ServiceOptions } from './types';
 
 /**
  * Registers A Class as Service
@@ -23,4 +22,3 @@ export function Provide(options?: ServiceOptions): <C extends ServiceConstructor
     return constructor;
   };
 }
-

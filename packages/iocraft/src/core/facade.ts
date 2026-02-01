@@ -1,5 +1,5 @@
 import type { Router } from 'vue-router';
-import type { ServiceConstructor } from './core';
+import type { ServiceConstructor } from './types';
 
 function hasKey(obj: Record<PropertyKey, unknown>, key: PropertyKey): boolean {
   if (typeof key === 'symbol') {
@@ -50,7 +50,6 @@ function addInstanceProperties<T extends object>(
   }
 }
 
-
 function addPrototypeProperties<T extends object>(
   serviceInstance: InstanceType<ServiceConstructor<T>>,
   targetObj: Record<PropertyKey, unknown>
@@ -92,11 +91,8 @@ function addPrototypeProperties<T extends object>(
  * @param {InstanceType<ServiceConstructor<T>>} serviceInstance
  * @returns {{}}
  */
-export function createFacadeObj<T extends object>(
-  serviceInstance: InstanceType<ServiceConstructor<T>>
-) {
+export function createFacadeObj<T extends object>(serviceInstance: InstanceType<ServiceConstructor<T>>) {
   const targetObj = {};
-
 
   addInstanceProperties(serviceInstance, targetObj);
   addPrototypeProperties(serviceInstance, targetObj);

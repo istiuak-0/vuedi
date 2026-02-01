@@ -1,7 +1,7 @@
 import { getCurrentInstance, inject, provide } from 'vue';
 import { createFacadeObj } from './facade';
-import type { ServiceConstructor } from './core';
 import { bindLifecycleHooks, RootRegistry, TempRegistry } from './internals';
+import type { ServiceConstructor } from './types';
 import { GetServiceMetadata } from './utils';
 
 /**

@@ -1,8 +1,8 @@
 import { type FunctionPlugin } from 'vue';
-import { createFacadeObj, generateRouterFacade } from './facade';
 import { Nav } from '../helpers';
-import type { PluginOptions } from './core';
+import { createFacadeObj, generateRouterFacade } from './facade';
 import { RootRegistry, TempRegistry } from './internals';
+import type { PluginOptions } from './types';
 import { GetServiceMetadata } from './utils';
 
 export const IocRaftPlugin: FunctionPlugin<[Partial<PluginOptions>?]> = (_app, options?: Partial<PluginOptions>) => {
