@@ -1,20 +1,12 @@
-import { Provide } from 'iocraft';
-import { Store } from 'iocraft/helpers';
-import { watch } from 'vue';
-
+import { Provide, type OnMounted, type OnUnmounted } from 'iocraft';
 
 @Provide()
-export class CountStore extends Store({
-  data: 10,
-  name: 'Istiuak',
-}) {
-  unwatch = watch(this.select('data'), () => {
+export class CountService implements OnMounted, OnUnmounted {
+  onMounted(): void {
+    console.log('On Mounted Hook Runned inside service');
+  }
 
-
-
-console.log();
-
-
-
-  });
+  onUnmounted(): void {
+    console.log('On UnMounted Hook Runned inside service');
+  }
 }

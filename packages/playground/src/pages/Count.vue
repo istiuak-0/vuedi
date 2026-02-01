@@ -1,15 +1,12 @@
 <script setup lang="ts">
-
-import { Inject } from 'iocraft';
-import { CountStore } from '../services/Count.service';
+import { Inject, InjectInstance } from 'iocraft';
 import { Nav } from 'iocraft/helpers';
+import { CountService } from '../services/Count.service';
 
-const store = Inject(CountStore);
+const countService = InjectInstance(CountService);
 
 const { push } = Inject(Nav);
 </script>
 <template>
-<p>{{store.select('name')}}</p>
-<p>{{store.getState()}}</p>
   <button @click="push('/')">navigate</button>
 </template>
