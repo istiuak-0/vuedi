@@ -1,4 +1,4 @@
-import { SERVICE_METADATA } from './internals';
+import { RootRegistry, SERVICE_METADATA } from './internals';
 import type { ServiceConstructor, ServiceMetadata } from './types';
 
 /**
@@ -16,4 +16,9 @@ export function GetServiceMetadata(target: ServiceConstructor | object): Service
     throw new Error(`[IOCRAFT]: ${ctor?.name || 'Unknown'} is not decorated with @Provide()`);
   }
   return meta;
+}
+
+export function HasService(serviceClass: ServiceConstructor) {
+  const meta = GetServiceMetadata(serviceClass);
+  return RootRegistry.has(meta.token);
 }
