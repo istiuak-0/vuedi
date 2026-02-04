@@ -8,7 +8,7 @@ import type { ServiceConstructor, ServiceMetadata, ServiceOptions } from './type
  * @param {?ServiceOptions} [options]
  * @returns {<C extends ServiceConstructor>(constructor: C) => C}
  */
-export function Provide(options?: ServiceOptions): <C extends ServiceConstructor>(constructor: C) => C {
+export function Register(options?: ServiceOptions): <C extends ServiceConstructor>(constructor: C) => C {
   return function <C extends ServiceConstructor>(constructor: C) {
     if ((constructor as any)[SERVICE_METADATA]?.token) {
       return constructor;

@@ -8,7 +8,7 @@ import type { ServiceConstructor, ServiceMetadata } from './types';
  * @param {(ServiceConstructor | object)} target
  * @returns {ServiceMetadata}
  */
-export function GetServiceMetadata(target: ServiceConstructor | object): ServiceMetadata {
+export function getServiceMetadata(target: ServiceConstructor | object): ServiceMetadata {
   const ctor = typeof target === 'function' ? target : target.constructor;
 
   const meta = (ctor as any)[SERVICE_METADATA] as ServiceMetadata;
@@ -19,6 +19,10 @@ export function GetServiceMetadata(target: ServiceConstructor | object): Service
 }
 
 export function HasService(serviceClass: ServiceConstructor) {
-  const meta = GetServiceMetadata(serviceClass);
+  const meta = getServiceMetadata(serviceClass);
   return RootRegistry.has(meta.token);
 }
+
+export function IsFacade(_serviceInstance: object) {}
+
+export function GetOriginalInstance() {}

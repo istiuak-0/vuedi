@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { ref, onErrorCaptured, Suspense, KeepAlive } from 'vue';
+import { ref, onErrorCaptured, Suspense, KeepAlive, getCurrentInstance, onUnmounted } from 'vue';
 import {  InjectInstance } from 'iocraft';
 import { LifecycleTestService } from '../services/Count.service';
 import ChildComponent from '../components/ChildComponent.vue';
 import ComponentA from '../components/ComponentA.vue';
 import ComponentB from '../components/ComponentB.vue';
 import AsyncComponent from '../components/AsyncComponent.vue';
+
+
+console.log(getCurrentInstance());
 
 
 InjectInstance(LifecycleTestService);
@@ -42,6 +45,14 @@ function switchComponent() {
 function throwError() {
   triggerError.value = true;
 }
+
+
+onUnmounted(()=>{
+
+console.log('unmouted from componet');
+
+
+})
 </script>
 
 <template>

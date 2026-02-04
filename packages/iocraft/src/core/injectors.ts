@@ -1,19 +1,19 @@
 import { getCurrentInstance, inject, provide } from 'vue';
 import { createFacadeObj } from './facade';
-import { bindLifecycleHooks, RootRegistry, TempRegistry } from './internals';
+import { bindLifecycleHooks, RootRegistry } from './internals';
 import type { ServiceConstructor } from './types';
-import { GetServiceMetadata } from './utils';
+import { getServiceMetadata } from './utils';
 
 /**
- * Injects a global singleton service From Root Registry
+ * obtain a global singleton service From Root Registry
  *
  * @export
  * @template {ServiceConstructor} T
  * @param {T} serviceClass
  * @returns {InstanceType<T>}
  */
-export function Inject<T extends ServiceConstructor>(serviceClass: T): InstanceType<T> {
-  const serviceMeta = GetServiceMetadata(serviceClass);
+export function obtain<T extends ServiceConstructor>(serviceClass: T): InstanceType<T> {
+  const serviceMeta = getServiceMetadata(serviceClass);
 
   if (!RootRegistry.has(serviceMeta.token)) {
     RootRegistry.set(serviceMeta.token, new serviceClass());
@@ -21,16 +21,14 @@ export function Inject<T extends ServiceConstructor>(serviceClass: T): InstanceT
 
   let instance = RootRegistry.get(serviceMeta.token)!;
 
-  if (serviceMeta.facade) {
-    if (!TempRegistry.has(serviceMeta.token)) {
-      TempRegistry.set(serviceMeta.token, createFacadeObj(instance));
-    }
-
-    instance = TempRegistry.get(serviceMeta.token)!;
-  }
+  instance = createFacadeObj(instance);
 
   return instance as InstanceType<T>;
 }
+
+export function obtainRaw() {}
+
+export function obtainRawInstance() {}
 
 /**
  * Inject a new Service Instance
@@ -40,21 +38,19 @@ export function Inject<T extends ServiceConstructor>(serviceClass: T): InstanceT
  * @param {T} serviceClass
  * @returns {InstanceType<T>}
  */
-export function InjectInstance<T extends ServiceConstructor>(serviceClass: T): InstanceType<T> {
-  const serviceMeta = GetServiceMetadata(serviceClass);
+export function obtainInstance<T extends ServiceConstructor>(serviceClass: T): InstanceType<T> {
+  const serviceMeta = getServiceMetadata(serviceClass);
   const componentInstance = getCurrentInstance();
   let instance = new serviceClass();
 
   if (serviceMeta.facade) {
-    if (!TempRegistry.has(serviceMeta.token)) {
-      TempRegistry.set(serviceMeta.token, createFacadeObj(instance));
-    }
-    instance = TempRegistry.get(serviceMeta.token)!;
+    instance = createFacadeObj(instance);
   }
 
   if (componentInstance) {
     bindLifecycleHooks(instance);
   }
+
   return instance as InstanceType<T>;
 }
 
@@ -65,8 +61,8 @@ export function InjectInstance<T extends ServiceConstructor>(serviceClass: T): I
  * @template {ServiceConstructor} T
  * @param {InstanceType<T>} serviceInstance
  */
-export function ExposeToContext<T extends ServiceConstructor>(serviceInstance: InstanceType<T>) {
-  const serviceMeta = GetServiceMetadata(serviceInstance);
+export function exposeToContext<T extends ServiceConstructor>(serviceInstance: InstanceType<T>) {
+  const serviceMeta = getServiceMetadata(serviceInstance);
   provide(serviceMeta.token, serviceInstance);
 }
 
@@ -78,7 +74,7 @@ export function ExposeToContext<T extends ServiceConstructor>(serviceInstance: I
  * @param {T} serviceClass
  * @returns {*}
  */
-export function InjectFromContext<T extends ServiceConstructor>(serviceClass: T) {
-  const serviceMeta = GetServiceMetadata(serviceClass);
+export function obtainFromContext<T extends ServiceConstructor>(serviceClass: T) {
+  const serviceMeta = getServiceMetadata(serviceClass);
   return inject<InstanceType<T>>(serviceMeta.token);
 }

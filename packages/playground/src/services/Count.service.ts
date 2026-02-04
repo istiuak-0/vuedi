@@ -33,23 +33,23 @@ export class LifecycleTestService
     OnScopeDispose
 {
   onBeforeMount(): void {
-    console.log('[Service] onBeforeMount');
+    // console.log('[Service] onBeforeMount');
   }
 
   onMounted(): void {
-    console.log('[Service] onMounted');
+    // console.log('[Service] onMounted');
   }
 
   onBeforeUpdate(): void {
-    console.log('[Service] onBeforeUpdate');
+    // console.log('[Service] onBeforeUpdate');
   }
 
   onUpdated(): void {
-    console.log('[Service] onUpdated');
+    // console.log('[Service] onUpdated');
   }
 
   onBeforeUnmount(): void {
-    console.log('[Service] onBeforeUnmount');
+    // console.log('[Service] onBeforeUnmount');
   }
 
   onUnmounted(): void {
@@ -57,30 +57,30 @@ export class LifecycleTestService
   }
 
   onActivated(): void {
-    console.log('[Service] onActivated');
+    // console.log('[Service] onActivated');
   }
 
   onDeactivated(): void {
-    console.log('[Service] onDeactivated');
+    // console.log('[Service] onDeactivated');
   }
 
   onRenderTracked(): void {
-    console.log('[Service] onRenderTracked');
+    // console.log('[Service] onRenderTracked');
   }
 
   onRenderTriggered(): void {
-    console.log('[Service] onRenderTriggered');
+    // console.log('[Service] onRenderTriggered');
   }
 
   onErrorCaptured(): void {
-    console.log('[Service] onErrorCaptured');
+    // console.log('[Service] onErrorCaptured');
   }
 
   onServerPrefetch(): void {
-    console.log('[Service] onServerPrefetch');
+    // console.log('[Service] onServerPrefetch');
   }
 
   onScopeDispose(): void {
-    console.log('[Service] onScopeDispose');
+    // console.log('[Service] onScopeDispose');
   }
 }

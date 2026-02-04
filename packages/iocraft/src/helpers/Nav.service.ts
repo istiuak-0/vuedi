@@ -1,5 +1,5 @@
 import type { RouteLocationNormalizedGeneric, Router } from 'vue-router';
-import { Provide } from '../core';
+import { Register } from '../core';
 
 export interface Nav
   extends
@@ -9,7 +9,7 @@ export interface Nav
       'path' | 'name' | 'params' | 'query' | 'hash' | 'fullPath' | 'matched' | 'meta'
     > {}
 
-@Provide({
+@Register({
   facade: false,
 })
 export class Nav {}
