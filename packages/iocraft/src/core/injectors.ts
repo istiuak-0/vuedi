@@ -1,69 +1,104 @@
-import { getCurrentInstance, inject, onScopeDispose } from 'vue';
-import type { ServiceConstructor } from '../utils/core.types';
-import { getServiceMeta, RootRegistry, TempRegistry } from '../utils/core.utils';
+import { getCurrentInstance, inject, provide } from 'vue';
 import { createFacadeObj } from './facade';
+import { bindLifecycleHooks, RootRegistry } from './internals';
+import type { ServiceConstructor } from './types';
+import { getServiceMetadata } from './utils';
 
 /**
- * Injects a global singleton service From Root Registry;
+ * obtain Facade of a global singleton service From Root Registry
  *
  * @export
  * @template {ServiceConstructor} T
  * @param {T} serviceClass
  * @returns {InstanceType<T>}
  */
-export function Inject<T extends ServiceConstructor>(serviceClass: T): InstanceType<T> {
-  const serviceMeta = getServiceMeta(serviceClass);
+export function obtain<T extends ServiceConstructor>(serviceClass: T) {
+  const serviceMeta = getServiceMetadata(serviceClass);
 
-  // Ensure singleton
   if (!RootRegistry.has(serviceMeta.token)) {
     RootRegistry.set(serviceMeta.token, new serviceClass());
   }
 
-  let instance = RootRegistry.get(serviceMeta.token)!;
+  const instance = RootRegistry.get(serviceMeta.token)!;
+  return createFacadeObj(instance) as InstanceType<T>;
+}
 
-  if (serviceMeta.facade) {
-    if (!TempRegistry.has(serviceMeta.token)) {
-      TempRegistry.set(serviceMeta.token, createFacadeObj(instance));
-    }
+/**
+ * obtain a global singleton service From Root Registry
+ *
+ * @export
+ * @template {ServiceConstructor} T
+ * @param {T} serviceClass
+ * @returns {InstanceType<T>}
+ */
+export function obtainRaw<T extends ServiceConstructor>(serviceClass: T) {
+  const serviceMeta = getServiceMetadata(serviceClass);
 
-    instance = TempRegistry.get(serviceMeta.token)!;
+  if (!RootRegistry.has(serviceMeta.token)) {
+    RootRegistry.set(serviceMeta.token, new serviceClass());
+  }
+
+  return RootRegistry.get(serviceMeta.token) as InstanceType<T>;
+}
+
+/**
+ * obtain a new Service Instance
+ *
+ * @export
+ * @template {ServiceConstructor} T
+ * @param {T} serviceClass
+ * @returns {InstanceType<T>}
+ */
+export function obtainRawInstance<T extends ServiceConstructor>(serviceClass: T) {
+  const componentInstance = getCurrentInstance();
+  let instance = new serviceClass();
+  if (componentInstance) {
+    bindLifecycleHooks(instance);
   }
 
   return instance as InstanceType<T>;
 }
 
-export function InjectInstance<T extends ServiceConstructor>(serviceClass: T) {
-  let instance = new serviceClass();
+/**
+ * obtain a facade of a new Service Instance
+ *
+ * @export
+ * @template {ServiceConstructor} T
+ * @param {T} serviceClass
+ * @returns {InstanceType<T>}
+ */
+export function obtainInstance<T extends ServiceConstructor>(serviceClass: T) {
   const componentInstance = getCurrentInstance();
+  let instance = new serviceClass();
 
   if (componentInstance) {
-    onScopeDispose(() => {
-      console.error('[IocRaft]: Scope Dispose Run');
-    });
+    bindLifecycleHooks(instance);
   }
-  return instance as InstanceType<T>;
+
+  return createFacadeObj(instance) as InstanceType<T>;
 }
 
-export function InjectFromContext<T extends ServiceConstructor>(serviceClass: T) {
-  const serviceMeta = getServiceMeta(serviceClass);
+/**
+ * Expose a service to context
+ *
+ * @export
+ * @template {ServiceConstructor} T
+ * @param {InstanceType<T>} serviceInstance
+ */
+export function exposeToContext<T extends ServiceConstructor>(serviceInstance: InstanceType<T>) {
+  const serviceMeta = getServiceMetadata(serviceInstance);
+  provide(serviceMeta.token, serviceInstance);
+}
+
+/**
+ * obtain A Service From Context
+ *
+ * @export
+ * @template {ServiceConstructor} T
+ * @param {T} serviceClass
+ * @returns {*}
+ */
+export function obtainFromContext<T extends ServiceConstructor>(serviceClass: T) {
+  const serviceMeta = getServiceMetadata(serviceClass);
   return inject<InstanceType<T>>(serviceMeta.token);
-}
-
-export function ExposeToContext<T extends ServiceConstructor>(_classOrInstance: InstanceType<T>) {
-  let ownsInstance = false;
-
-  if (ownsInstance) {
-    const componentInstance = getCurrentInstance();
-    if (componentInstance) {
-      onScopeDispose(() => {});
-    }
-  }
-}
-
-export function RemoveFromRegistry() {
-  console.log('removing from registry');
-}
-
-export function InstanceOf() {
-  console.log('deciding instance');
 }

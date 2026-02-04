@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Inject } from 'iocraft';
+import { obtain } from 'iocraft';
 import { BinanceService } from '../services/Binance.service';
 
-const { connected, socket, lastMessage } = Inject(BinanceService);
+const { connected, socket, lastMessage } = obtain(BinanceService);
 </script>
 
 <template>

@@ -1,8 +1,7 @@
-import { Provide } from 'iocraft';
+import { Register } from 'iocraft';
 import { ref } from 'vue';
 
-
-@Provide()
+@Register()
 export class BinanceService {
   public socket: WebSocket | null = null;
   public connected = ref(false);
