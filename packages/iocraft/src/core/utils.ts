@@ -2,13 +2,13 @@ import { RootRegistry, SERVICE_METADATA } from './internals';
 import type { ServiceConstructor, ServiceMetadata } from './types';
 
 /**
- * Get service metadata without instantiating
+ * get service metadata
  *
  * @export
  * @param {(ServiceConstructor | object)} target
  * @returns {ServiceMetadata}
  */
-export function getServiceMetadata(target: ServiceConstructor | object): ServiceMetadata {
+export function getServiceMetadata(target: ServiceConstructor | object) {
   const ctor = typeof target === 'function' ? target : target.constructor;
 
   const meta = (ctor as any)[SERVICE_METADATA] as ServiceMetadata;
@@ -17,6 +17,7 @@ export function getServiceMetadata(target: ServiceConstructor | object): Service
   }
   return meta;
 }
+
 
 export function HasService(serviceClass: ServiceConstructor) {
   const meta = getServiceMetadata(serviceClass);
