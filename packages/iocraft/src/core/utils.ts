@@ -13,11 +13,10 @@ export function getServiceMetadata(target: ServiceConstructor | object) {
 
   const meta = (ctor as any)[SERVICE_METADATA] as ServiceMetadata;
   if (!meta?.token) {
-    throw new Error(`[IOCRAFT]: ${ctor?.name || 'Unknown'} is not decorated with @Provide()`);
+    throw new Error(`[IOCRAFT]: ${ctor?.name || 'Unknown'} is not decorated with @Register()`);
   }
   return meta;
 }
-
 
 export function HasService(serviceClass: ServiceConstructor) {
   const meta = getServiceMetadata(serviceClass);
@@ -26,4 +25,3 @@ export function HasService(serviceClass: ServiceConstructor) {
 
 export function IsFacade(_serviceInstance: object) {}
 
-export function GetOriginalInstance() {}

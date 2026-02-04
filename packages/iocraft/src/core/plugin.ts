@@ -5,7 +5,7 @@ import { RootRegistry } from './internals';
 import type { PluginOptions } from './types';
 import { getServiceMetadata } from './utils';
 
-export const iocRaft: FunctionPlugin<[Partial<PluginOptions>?]> = (_app, options?: Partial<PluginOptions>) => {
+export const iocraft: FunctionPlugin<[Partial<PluginOptions>?]> = (_app, options?: Partial<PluginOptions>) => {
   if (options?.router) {
     RootRegistry.set(getServiceMetadata(Nav).token, generateRouterFacade(options.router));
   }

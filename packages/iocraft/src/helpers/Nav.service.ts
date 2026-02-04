@@ -9,7 +9,5 @@ export interface Nav
       'path' | 'name' | 'params' | 'query' | 'hash' | 'fullPath' | 'matched' | 'meta'
     > {}
 
-@Register({
-  facade: false,
-})
+@Register()
 export class Nav {}

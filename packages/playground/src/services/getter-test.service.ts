@@ -1,4 +1,4 @@
-import { Provide } from 'iocraft';
+import { Register } from 'iocraft';
 import { ref } from 'vue';
 
 export const INTERNAL_SYMBOL = Symbol('internal');
@@ -39,7 +39,7 @@ class MiddleService extends BaseService {
   override [USER_SYMBOL] = ref('middle user symbol');
 }
 
-@Provide()
+@Register()
 export class GetterTestService extends MiddleService {
   instanceRef = ref(100);
   private _private = 'secret';

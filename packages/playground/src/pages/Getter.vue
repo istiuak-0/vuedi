@@ -1,9 +1,6 @@
-<script setup lang="ts">
-import { Inject } from 'iocraft';
-import { CountStore } from '../services/Count.service';
-
-const service = Inject(CountStore);
-</script>
+<script setup lang="ts"> 
+ 
+ </script>
 <template>
-  <p>{{ service }}</p>
+
 </template>

@@ -2,11 +2,10 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import App from './App.vue';
 import { router } from './router';
-import { IocRaftPlugin } from 'iocraft';
-
+import { iocraft } from 'iocraft';
 const app = createApp(App);
 app.use(router);
-app.use(IocRaftPlugin, {
+app.use(iocraft, {
   router,
 });
 app.use(createPinia());

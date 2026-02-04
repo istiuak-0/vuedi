@@ -1,5 +1,5 @@
 import {
-  Provide,
+  Register,
   type OnActivated,
   type OnBeforeMount,
   type OnBeforeUnmount,
@@ -15,7 +15,8 @@ import {
   type OnUpdated,
 } from 'iocraft';
 
-@Provide()
+
+@Register()
 export class LifecycleTestService
   implements
     OnMounted,

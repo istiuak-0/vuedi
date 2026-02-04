@@ -1,18 +1,22 @@
 <script setup lang="ts">
 import { watch, onMounted } from 'vue';
-import { InjectInstance } from 'iocraft';
-import { LifecycleTestService } from '../services/Count.service';
 
-InjectInstance(LifecycleTestService);
+import { LifecycleTestService } from '../services/Count.service';
+import { obtainInstance } from 'iocraft';
+
+obtainInstance(LifecycleTestService);
 
 const props = defineProps<{
   counter: number;
   shouldError: boolean;
 }>();
 
-watch(() => props.counter, (newVal) => {
-  console.log('[ChildComponent] Counter updated to:', newVal);
-});
+watch(
+  () => props.counter,
+  newVal => {
+    console.log('[ChildComponent] Counter updated to:', newVal);
+  }
+);
 
 onMounted(() => {
   if (props.shouldError) {

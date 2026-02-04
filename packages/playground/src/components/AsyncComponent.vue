@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { InjectInstance } from 'iocraft';
+import { obtainInstance } from 'iocraft';
 import { LifecycleTestService } from '../services/Count.service';
 
-InjectInstance(LifecycleTestService);
+obtainInstance(LifecycleTestService);
 
 // Simulate async operation
 await new Promise(resolve => setTimeout(resolve, 100));
