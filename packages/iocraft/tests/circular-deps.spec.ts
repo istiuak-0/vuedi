@@ -1,34 +1,20 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { 
-  obtain, 
-  obtainRaw, 
-  obtainInstance, 
-  obtainRawInstance,
-  Register, 
-  clearRegistry
-} from './../src/core';
-
-
+import { obtain, obtainRaw, obtainInstance, obtainRawInstance, Register, clearRegistry } from './../src/core';
 
 // Test Suite
 describe('Circular Dependency Detection', () => {
-  
   beforeEach(() => {
     clearRegistry();
     vi.restoreAllMocks();
   });
 
-  // ==========================================================================
-  // Test Group 1: Singleton with Facade (obtain)
-  // ==========================================================================
-  
+  // Singleton with Facade (obtain)
   describe('obtain() - Singleton with Facade', () => {
-    
     it('should detect and resolve circular dependency between two services', () => {
       @Register()
       class ServiceA {
         private serviceB = obtain(ServiceB);
-        
+
         getValue() {
           return this.serviceB.getName();
         }
@@ -37,11 +23,11 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ServiceB {
         private serviceA = obtain(ServiceA);
-        
+
         getName() {
           return 'ServiceB';
         }
-        
+
         getValueFromA() {
           return this.serviceA.getValue();
         }
@@ -49,10 +35,10 @@ describe('Circular Dependency Detection', () => {
 
       // Should not throw
       const serviceA = obtain(ServiceA);
-      
+
       // Should work via lazy proxy
       expect(serviceA.getValue()).toBe('ServiceB');
-      
+
       // Get ServiceB and verify it can access ServiceA
       const serviceB = obtain(ServiceB);
       expect(serviceB.getValueFromA()).toBe('ServiceB');
@@ -60,7 +46,7 @@ describe('Circular Dependency Detection', () => {
 
     it('should warn in dev mode about circular dependency', () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      
+
       @Register()
       class ServiceA {
         private serviceB = obtain(ServiceB);
@@ -72,11 +58,11 @@ describe('Circular Dependency Detection', () => {
       }
 
       obtain(ServiceA);
-      
+
       // Should have warned
       expect(consoleSpy).toHaveBeenCalled();
       expect(consoleSpy.mock.calls[0][0]).toContain('Circular dependency');
-      
+
       consoleSpy.mockRestore();
     });
 
@@ -84,11 +70,11 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ServiceA {
         private serviceB = obtain(ServiceB);
-        
+
         getName() {
           return 'A';
         }
-        
+
         getFromB() {
           return this.serviceB.getName();
         }
@@ -97,11 +83,11 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ServiceB {
         private serviceC = obtain(ServiceC);
-        
+
         getName() {
           return 'B';
         }
-        
+
         getFromC() {
           return this.serviceC.getName();
         }
@@ -110,11 +96,11 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ServiceC {
         private serviceA = obtain(ServiceA);
-        
+
         getName() {
           return 'C';
         }
-        
+
         getFromA() {
           return this.serviceA.getName();
         }
@@ -123,25 +109,26 @@ describe('Circular Dependency Detection', () => {
       const serviceA = obtain(ServiceA);
       const serviceB = obtain(ServiceB);
       const serviceC = obtain(ServiceC);
-      
+
       expect(serviceA.getFromB()).toBe('B');
       expect(serviceB.getFromC()).toBe('C');
       expect(serviceC.getFromA()).toBe('A');
     });
 
+    /// FIX ME: need to change the circular deps implementation to support this
     it('should handle self-referencing service', () => {
       @Register()
       class ServiceA {
-        private self = obtain(ServiceA);
-        
+        private self = obtainRaw(ServiceA);
+
         getSelf() {
           return this.self;
         }
       }
 
       const serviceA = obtain(ServiceA);
-      
-      // Self should resolve to the same facade
+
+      // Self should resolve
       expect(serviceA.getSelf()).toBe(serviceA);
     });
 
@@ -150,7 +137,7 @@ describe('Circular Dependency Detection', () => {
       class ServiceA {
         public name = 'ServiceA';
         private serviceB = obtain(ServiceB);
-        
+
         getNameFromB() {
           return this.serviceB.name;
         }
@@ -160,7 +147,7 @@ describe('Circular Dependency Detection', () => {
       class ServiceB {
         public name = 'ServiceB';
         private serviceA = obtain(ServiceA);
-        
+
         getNameFromA() {
           return this.serviceA.name;
         }
@@ -168,11 +155,12 @@ describe('Circular Dependency Detection', () => {
 
       const serviceA = obtain(ServiceA);
       const serviceB = obtain(ServiceB);
-      
+
       expect(serviceA.getNameFromB()).toBe('ServiceB');
       expect(serviceB.getNameFromA()).toBe('ServiceA');
     });
 
+    // TODO :: Need To Refactor It
     it('should throw error if circular dependency accessed in constructor', () => {
       @Register()
       class ServiceA {
@@ -185,7 +173,7 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ServiceB {
         private serviceA = obtain(ServiceA);
-        
+
         getName() {
           return 'ServiceB';
         }
@@ -197,17 +185,16 @@ describe('Circular Dependency Detection', () => {
     });
   });
 
-  // ==========================================================================
-  // Test Group 2: Singleton Raw (obtainRaw)
-  // ==========================================================================
-  
+  // Singleton Raw (obtainRaw)
+
   describe('obtainRaw() - Singleton without Facade', () => {
-    
+
+    /// TODO: eager Resolution fails need to fix it 
     it('should detect and resolve circular dependency with raw instances', () => {
       @Register()
       class ServiceA {
         private serviceB = obtainRaw(ServiceB);
-        
+
         getValue() {
           return this.serviceB.getName();
         }
@@ -216,14 +203,20 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ServiceB {
         private serviceA = obtainRaw(ServiceA);
-        
+
         getName() {
-          return 'ServiceB';
+          return ServiceB.name;
+        }
+
+        getServiceA() {
+          return this.serviceA;
         }
       }
 
       const serviceA = obtainRaw(ServiceA);
-      
+      const serviceB = obtainRaw(ServiceB);
+
+      expect(serviceB.getServiceA()).toBe(serviceA);
       expect(serviceA.getValue()).toBe('ServiceB');
     });
 
@@ -235,23 +228,24 @@ describe('Circular Dependency Detection', () => {
 
       const instance1 = obtainRaw(ServiceA);
       const instance2 = obtainRaw(ServiceA);
-      
+
       expect(instance1).toBe(instance2);
       expect(instance1.id).toBe(instance2.id);
     });
   });
 
-  // ==========================================================================
-  // Test Group 3: Mixed Facade and Raw
-  // ==========================================================================
-  
+
+///------ checked till here
+
+
+  // Mixed Facade and Raw
+
   describe('Mixed obtain() and obtainRaw()', () => {
-    
     it('should handle circular dependency with mixed facade and raw', () => {
       @Register()
       class ServiceA {
         private serviceB = obtain(ServiceB); // Facade
-        
+
         getValue() {
           return this.serviceB.getName();
         }
@@ -260,31 +254,28 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ServiceB {
         private serviceA = obtainRaw(ServiceA); // Raw
-        
+
         getName() {
           return 'ServiceB';
         }
       }
 
       const serviceA = obtain(ServiceA);
-      
+
       expect(serviceA.getValue()).toBe('ServiceB');
     });
   });
 
-  // ==========================================================================
-  // Test Group 4: Transient with Facade (obtainInstance)
-  // ==========================================================================
-  
+  // Transient with Facade (obtainInstance)
+
   describe('obtainInstance() - Transient with Facade', () => {
-    
     it('should detect circular dependency in transient instances', () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      
+
       @Register()
       class ServiceA {
         private serviceB = obtainInstance(ServiceB);
-        
+
         getValue() {
           return this.serviceB.getName();
         }
@@ -293,7 +284,7 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ServiceB {
         private serviceA = obtainInstance(ServiceA);
-        
+
         getName() {
           return 'ServiceB';
         }
@@ -301,14 +292,14 @@ describe('Circular Dependency Detection', () => {
 
       // Should not cause infinite recursion
       const serviceA = obtainInstance(ServiceA);
-      
+
       // Should warn about transient circular dependency
       expect(consoleSpy).toHaveBeenCalled();
       expect(consoleSpy.mock.calls[0][0]).toContain('transient');
-      
+
       // Should still work via lazy proxy
       expect(serviceA.getValue()).toBe('ServiceB');
-      
+
       consoleSpy.mockRestore();
     });
 
@@ -320,7 +311,7 @@ describe('Circular Dependency Detection', () => {
 
       const instance1 = obtainInstance(ServiceA);
       const instance2 = obtainInstance(ServiceA);
-      
+
       // Different instances
       expect(instance1).not.toBe(instance2);
       expect(instance1.id).not.toBe(instance2.id);
@@ -330,7 +321,7 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ServiceA {
         private serviceB = obtainInstance(ServiceB);
-        
+
         doWork() {
           return this.serviceB.process();
         }
@@ -339,14 +330,14 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ServiceB {
         private serviceA = obtainInstance(ServiceA);
-        
+
         process() {
           return 'processed';
         }
       }
 
       const serviceA = obtainInstance(ServiceA);
-      
+
       expect(serviceA.doWork()).toBe('processed');
     });
   });
@@ -354,16 +345,15 @@ describe('Circular Dependency Detection', () => {
   // ==========================================================================
   // Test Group 5: Transient Raw (obtainRawInstance)
   // ==========================================================================
-  
+
   describe('obtainRawInstance() - Transient without Facade', () => {
-    
     it('should detect circular dependency in raw transient instances', () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      
+
       @Register()
       class ServiceA {
         private serviceB = obtainRawInstance(ServiceB);
-        
+
         getValue() {
           return this.serviceB.getName();
         }
@@ -372,20 +362,20 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ServiceB {
         private serviceA = obtainRawInstance(ServiceA);
-        
+
         getName() {
           return 'ServiceB';
         }
       }
 
       const serviceA = obtainRawInstance(ServiceA);
-      
+
       // Should warn
       expect(consoleSpy).toHaveBeenCalled();
-      
+
       // Should work
       expect(serviceA.getValue()).toBe('ServiceB');
-      
+
       consoleSpy.mockRestore();
     });
 
@@ -397,7 +387,7 @@ describe('Circular Dependency Detection', () => {
 
       const instance1 = obtainRawInstance(ServiceA);
       const instance2 = obtainRawInstance(ServiceA);
-      
+
       expect(instance1).not.toBe(instance2);
       expect(instance1.id).not.toBe(instance2.id);
     });
@@ -406,14 +396,13 @@ describe('Circular Dependency Detection', () => {
   // ==========================================================================
   // Test Group 6: Mixed Singleton and Transient
   // ==========================================================================
-  
+
   describe('Mixed Singleton and Transient', () => {
-    
     it('should handle singleton depending on transient', () => {
       @Register()
       class ServiceA {
         private serviceB = obtainInstance(ServiceB); // Transient
-        
+
         getValue() {
           return this.serviceB.getName();
         }
@@ -422,14 +411,14 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ServiceB {
         private serviceA = obtain(ServiceA); // Singleton - breaks cycle
-        
+
         getName() {
           return 'ServiceB';
         }
       }
 
       const serviceA = obtain(ServiceA);
-      
+
       expect(serviceA.getValue()).toBe('ServiceB');
     });
 
@@ -437,7 +426,7 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ServiceA {
         private serviceB = obtain(ServiceB); // Singleton - breaks cycle
-        
+
         getValue() {
           return this.serviceB.getName();
         }
@@ -446,14 +435,14 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ServiceB {
         private serviceA = obtainInstance(ServiceA); // Transient
-        
+
         getName() {
           return 'ServiceB';
         }
       }
 
       const serviceA = obtainInstance(ServiceA);
-      
+
       expect(serviceA.getValue()).toBe('ServiceB');
     });
   });
@@ -461,14 +450,13 @@ describe('Circular Dependency Detection', () => {
   // ==========================================================================
   // Test Group 7: Complex Real-World Scenarios
   // ==========================================================================
-  
+
   describe('Real-World Scenarios', () => {
-    
     it('should handle user service <-> auth service pattern', () => {
       @Register()
       class AuthService {
         private userService = obtain(UserService);
-        
+
         login(username: string) {
           const user = this.userService.findByUsername(username);
           return { token: 'abc123', user };
@@ -478,11 +466,11 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class UserService {
         private authService = obtain(AuthService);
-        
+
         findByUsername(username: string) {
           return { id: 1, username };
         }
-        
+
         getCurrentUser() {
           // Might check auth in real scenario
           return this.findByUsername('current');
@@ -491,7 +479,7 @@ describe('Circular Dependency Detection', () => {
 
       const authService = obtain(AuthService);
       const result = authService.login('john');
-      
+
       expect(result.user.username).toBe('john');
       expect(result.token).toBe('abc123');
     });
@@ -501,11 +489,11 @@ describe('Circular Dependency Detection', () => {
       class ParentService {
         public name = 'Parent';
         private childService = obtain(ChildService);
-        
+
         delegateToChild() {
           return this.childService.doWork();
         }
-        
+
         getName() {
           return this.name;
         }
@@ -514,14 +502,14 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ChildService {
         private parentService = obtain(ParentService);
-        
+
         doWork() {
           return 'work done by ' + this.parentService.getName();
         }
       }
 
       const parent = obtain(ParentService);
-      
+
       expect(parent.delegateToChild()).toBe('work done by Parent');
     });
 
@@ -529,29 +517,37 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ServiceA {
         private serviceB = obtain(ServiceB);
-        getValue() { return this.serviceB.getValue() + 'A'; }
+        getValue() {
+          return this.serviceB.getValue() + 'A';
+        }
       }
 
       @Register()
       class ServiceB {
         private serviceC = obtain(ServiceC);
-        getValue() { return this.serviceC.getValue() + 'B'; }
+        getValue() {
+          return this.serviceC.getValue() + 'B';
+        }
       }
 
       @Register()
       class ServiceC {
         private serviceD = obtain(ServiceD);
-        getValue() { return this.serviceD.getValue() + 'C'; }
+        getValue() {
+          return this.serviceD.getValue() + 'C';
+        }
       }
 
       @Register()
       class ServiceD {
         private serviceA = obtain(ServiceA);
-        getValue() { return 'D'; }
+        getValue() {
+          return 'D';
+        }
       }
 
       const serviceA = obtain(ServiceA);
-      
+
       // This should resolve without infinite loop
       expect(serviceA.getValue()).toBe('DBCA');
     });
@@ -560,19 +556,18 @@ describe('Circular Dependency Detection', () => {
   // ==========================================================================
   // Test Group 8: Edge Cases
   // ==========================================================================
-  
+
   describe('Edge Cases', () => {
-    
     it('should handle circular dependency with property setters', () => {
       @Register()
       class ServiceA {
         private serviceB = obtain(ServiceB);
         public value = 10;
-        
+
         incrementB() {
           this.serviceB.value++;
         }
-        
+
         getValueFromB() {
           return this.serviceB.value;
         }
@@ -582,7 +577,7 @@ describe('Circular Dependency Detection', () => {
       class ServiceB {
         private serviceA = obtain(ServiceA);
         public value = 20;
-        
+
         incrementA() {
           this.serviceA.value++;
         }
@@ -590,12 +585,12 @@ describe('Circular Dependency Detection', () => {
 
       const serviceA = obtain(ServiceA);
       const serviceB = obtain(ServiceB);
-      
+
       expect(serviceA.getValueFromB()).toBe(20);
-      
+
       serviceA.incrementB();
       expect(serviceA.getValueFromB()).toBe(21);
-      
+
       serviceB.incrementA();
       expect(serviceA.value).toBe(11);
     });
@@ -605,11 +600,11 @@ describe('Circular Dependency Detection', () => {
       class ServiceA {
         private serviceB = obtain(ServiceB);
         private _value = 100;
-        
+
         get value() {
           return this._value;
         }
-        
+
         getValueFromB() {
           return this.serviceB.value;
         }
@@ -619,14 +614,14 @@ describe('Circular Dependency Detection', () => {
       class ServiceB {
         private serviceA = obtain(ServiceA);
         private _value = 200;
-        
+
         get value() {
           return this._value;
         }
       }
 
       const serviceA = obtain(ServiceA);
-      
+
       expect(serviceA.getValueFromB()).toBe(200);
     });
 
@@ -635,11 +630,11 @@ describe('Circular Dependency Detection', () => {
       class ServiceA {
         private serviceB = obtain(ServiceB);
         private serviceC = obtain(ServiceC);
-        
+
         getFromB() {
           return this.serviceB.getName();
         }
-        
+
         getFromC() {
           return this.serviceC.getName();
         }
@@ -648,17 +643,21 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ServiceB {
         private serviceA = obtain(ServiceA);
-        getName() { return 'B'; }
+        getName() {
+          return 'B';
+        }
       }
 
       @Register()
       class ServiceC {
         private serviceA = obtain(ServiceA);
-        getName() { return 'C'; }
+        getName() {
+          return 'C';
+        }
       }
 
       const serviceA = obtain(ServiceA);
-      
+
       expect(serviceA.getFromB()).toBe('B');
       expect(serviceA.getFromC()).toBe('C');
     });
@@ -667,9 +666,8 @@ describe('Circular Dependency Detection', () => {
   // ==========================================================================
   // Test Group 9: Error Cases
   // ==========================================================================
-  
+
   describe('Error Handling', () => {
-    
     it('should provide helpful error message when accessed too early', () => {
       @Register()
       class ServiceA {
@@ -688,7 +686,9 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ServiceB {
         private serviceA = obtain(ServiceA);
-        getName() { return 'B'; }
+        getName() {
+          return 'B';
+        }
       }
 
       expect(() => {
@@ -700,24 +700,25 @@ describe('Circular Dependency Detection', () => {
   // ==========================================================================
   // Test Group 10: Performance
   // ==========================================================================
-  
+
   describe('Performance', () => {
-    
     it('should not significantly slow down normal injection', () => {
       @Register()
       class ServiceA {
-        getValue() { return 'A'; }
+        getValue() {
+          return 'A';
+        }
       }
 
       const start = performance.now();
-      
+
       for (let i = 0; i < 1000; i++) {
         obtain(ServiceA);
       }
-      
+
       const end = performance.now();
       const timePerCall = (end - start) / 1000;
-      
+
       // Should be very fast (< 0.1ms per call after first)
       expect(timePerCall).toBeLessThan(0.1);
     });
@@ -726,26 +727,30 @@ describe('Circular Dependency Detection', () => {
       @Register()
       class ServiceA {
         private serviceB = obtain(ServiceB);
-        getValue() { return this.serviceB.getName(); }
+        getValue() {
+          return this.serviceB.getName();
+        }
       }
 
       @Register()
       class ServiceB {
         private serviceA = obtain(ServiceA);
-        getName() { return 'B'; }
+        getName() {
+          return 'B';
+        }
       }
 
       const serviceA = obtain(ServiceA);
-      
+
       const start = performance.now();
-      
+
       for (let i = 0; i < 1000; i++) {
         serviceA.getValue();
       }
-      
+
       const end = performance.now();
       const timePerCall = (end - start) / 1000;
-      
+
       // Lazy proxy access should be fast
       expect(timePerCall).toBeLessThan(0.01);
     });

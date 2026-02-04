@@ -47,7 +47,8 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
-    "test": "vitest bench"
+    "test": "vitest",
+    "bench": "vitest bench"
   },
   "peerDependencies": {
     "vue": "^3.0.0",
