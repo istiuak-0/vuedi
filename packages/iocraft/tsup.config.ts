@@ -1,7 +1,5 @@
 import { defineConfig } from 'tsup';
 
-const __DEV__ = '(process.env.NODE_ENV !== "production")';
-const __TEST__ = '(process.env.NODE_ENV === "test")';
 export default defineConfig({
   entry: {
     core: './src/core.ts',
@@ -17,9 +15,10 @@ export default defineConfig({
   outDir: 'dist',
 
   define: {
-    __DEV__,
-    __TEST__,
-    __USE_DEVTOOLS__: `((${__DEV__} || __VUE_PROD_DEVTOOLS__) && !${__TEST__})`,
+    __DEV__: 'process.env.NODE_ENV !== "production"',
+    __TEST__: 'process.env.NODE_ENV === "test"',
+    __USE_DEVTOOLS__:
+      '((process.env.NODE_ENV !== "production" || __VUE_PROD_DEVTOOLS__) && process.env.NODE_ENV !== "test")',
   },
 
   esbuildOptions(options) {
